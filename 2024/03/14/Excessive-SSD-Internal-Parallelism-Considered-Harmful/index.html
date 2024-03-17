@@ -1,0 +1,807 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/blog.png">
+  <link rel="icon" href="/img/blog.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="次天钊">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="背景 随着过去十年内固态硬盘（SSD）容量的显著提升，SSD管理的基本单位也随之增大，旨在减轻管理负担。随着每个存储块包含的页面数和每个芯片的块数的增加，固态硬盘的闪存转换层（FTL）需要追踪更多的信息。因此，现代SSD倾向于在超级块（一个包含多个块的更大单位）级别处理写入请求，通过在所有可用通道和芯片上进行数据条带化来增强并行性并降低动态随机存取内存（DRAM）的使用。此外，SSD在超级块级别执">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Excessive SSD-Internal Parallelism Considered Harmful">
+<meta property="og:url" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/index.html">
+<meta property="og:site_name" content="Stack">
+<meta property="og:description" content="背景 随着过去十年内固态硬盘（SSD）容量的显著提升，SSD管理的基本单位也随之增大，旨在减轻管理负担。随着每个存储块包含的页面数和每个芯片的块数的增加，固态硬盘的闪存转换层（FTL）需要追踪更多的信息。因此，现代SSD倾向于在超级块（一个包含多个块的更大单位）级别处理写入请求，通过在所有可用通道和芯片上进行数据条带化来增强并行性并降低动态随机存取内存（DRAM）的使用。此外，SSD在超级块级别执">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/image-20240314164256958.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/image-20240314164303987.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/image-20240314164311173.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/image-20240314164319711.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/image-20240314164331949.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/image-20240314164338783.png">
+<meta property="article:published_time" content="2024-03-14T08:55:30.000Z">
+<meta property="article:modified_time" content="2024-03-17T09:32:36.187Z">
+<meta property="article:author" content="次天钊">
+<meta property="article:tag" content="SSD">
+<meta property="article:tag" content="Parallelism">
+<meta property="article:tag" content="Superblock">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/image-20240314164256958.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Excessive SSD-Internal Parallelism Considered Harmful - Stack</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ci-tz.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Stack Never Flow</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Excessive SSD-Internal Parallelism Considered Harmful"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-14 16:55" pubdate>
+          2024年3月14日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          10 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Excessive SSD-Internal Parallelism Considered Harmful</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="背景">背景</h2>
+<p>随着过去十年内固态硬盘（SSD）容量的显著提升，SSD管理的基本单位也随之增大，旨在减轻管理负担。随着每个存储块包含的页面数和每个芯片的块数的增加，固态硬盘的闪存转换层（FTL）需要追踪更多的信息。因此，现代SSD倾向于在超级块（一个包含多个块的更大单位）级别处理写入请求，通过在所有可用通道和芯片上进行数据条带化来增强并行性并降低动态随机存取内存（DRAM）的使用。此外，SSD在超级块级别执行垃圾回收（GC），选择一个超级块作为回收目标，迁移其中的有效数据，并清除整个超级块。但是，更大的管理单位以牺牲性能为代价来换取更低的空间开销。</p>
+<p>较大的超级块意味着可供垃圾回收的候选超级块数量减少，导致必须整个清除超级块，即使其内部的有效数据分布不均。考虑到实际工作负载很少完全均匀，这种设计在GC过程中需要迁移更多的有效数据，降低性能并减少SSD寿命。因此，更小的超级块对于提高GC效率至关重要，是优化SSD性能和延长其寿命的关键。</p>
+<h2 id="方法概述">方法概述</h2>
+<h3 id="灵活的超级块大小设计">灵活的超级块大小设计</h3>
+<ul>
+<li><strong>思想</strong>：大型、顺序的请求使用大超级块，而小型、随机的请求则使用小超级块。</li>
+<li><strong>实现方式</strong>：
+<ul>
+<li>大超级块覆盖全部通道及其上的所有芯片（# channel * # chips）。</li>
+<li>小超级块覆盖全部通道，但只使用部分芯片（# channel * 1/4 # chips）。</li>
+<li>通过分析请求的起始和终止扇区来确定请求的大小。</li>
+<li>在执行GC时，优先选择无效页比例最高的超级块。</li>
+</ul></li>
+</ul>
+<h3 id="生命周期预测">生命周期预测</h3>
+<ul>
+<li><strong>粒度</strong>：逻辑地址空间被分成多个块，每个块由32个页面组成。为每个块使用4字节的数据结构来记录其信息，包括加权平均寿命、上一次写入操作的时间和类型。当一个块被覆盖写或变为无效时，更新该块的加权寿命。更新方式如下图所示：</li>
+</ul>
+<p><img src="image-20240314164256958.png" srcset="/img/loading.gif" lazyload /></p>
+<ul>
+<li><strong>策略</strong>：同时开放多个超级块以服务不同寿命的数据请求，例如，短生命周期超级块处理寿命小于1秒的数据，而长生命周期超级块处理寿命在3到7秒之间的数据。对于还没有预测寿命的数据，使用默认超级块。</li>
+</ul>
+<p><img src="image-20240314164303987.png" srcset="/img/loading.gif" lazyload /></p>
+<h2 id="实验设计">实验设计</h2>
+<ul>
+<li><strong>平台</strong>：FEMU，参数设置如图所示。</li>
+</ul>
+<p><img src="image-20240314164311173.png" srcset="/img/loading.gif" lazyload /></p>
+<ul>
+<li><strong>负载类型</strong>：
+<ul>
+<li><strong>FIO</strong>：使用4个线程，每个线程向不同大小的文件发送总共256GB的读写请求（读写比为50/50）。所有请求均为随机访问，请求大小固定为4KB，队列深度设置为32。</li>
+<li><strong>TPC-C</strong>：使用MySQL数据库，页面大小为4KB，通过BenchBase工具执行，配置30个终端和30个仓库进行测试。</li>
+<li><strong>YCSB</strong>：插入了1亿个键值对，随后使用工作负载A（读写比为50/50）发出5000万个请求进行性能测试。</li>
+<li><strong>Fileserver</strong>：使用Filebench工具模拟文件服务器的工作负荷，创建1百万个大小为128KB的文件，并通过16个并发线程执行模拟的文件操作。</li>
+<li><strong>GCC</strong>：模拟了编译Linux内核的过程，重复执行100次。每次实验都会将内核源码复制到SSD上，然后编译内核，最后删除源码和生成的二进制文件，以模拟编译过程中的磁盘I/O活动。</li>
+</ul></li>
+<li><strong>对比方案</strong>：
+<ul>
+<li><strong>Baseline</strong>：传统固态盘</li>
+<li><strong>Partial GC</strong>：在使用超级块的同时，将GC的单位设为单个块</li>
+<li><strong>Multi-stream</strong></li>
+<li><strong>Autostream</strong></li>
+<li><strong>PLAN-NoPred</strong>：在不进行生命周期预测的情况下，将大型请求写入大超级块，小型请求写入并行度较低的小超级块（1/4或1/8的芯片数）。</li>
+<li><strong>PLAN-Pred</strong>：在PLAN-NoPred的基础上加入了寿命预测技术，根据数据的预测寿命将其分配到不同的超级块中，既有1/4也有1/8的芯片数版本。</li>
+</ul></li>
+</ul>
+<h2 id="测试结果">测试结果</h2>
+<ul>
+<li>写放大</li>
+</ul>
+<p><img src="image-20240314164319711.png" srcset="/img/loading.gif" lazyload /></p>
+<ul>
+<li>GC效率优化</li>
+</ul>
+<p><img src="image-20240314164331949.png" srcset="/img/loading.gif" lazyload /></p>
+<ul>
+<li>吞吐量优化</li>
+</ul>
+<p><img src="image-20240314164338783.png" srcset="/img/loading.gif" lazyload /></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" class="category-chain-item">论文阅读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/SSD/" class="print-no-link">#SSD</a>
+      
+        <a href="/tags/Parallelism/" class="print-no-link">#Parallelism</a>
+      
+        <a href="/tags/Superblock/" class="print-no-link">#Superblock</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Excessive SSD-Internal Parallelism Considered Harmful</div>
+      <div>https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>次天钊</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年3月14日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/03/16/%E8%B5%84%E6%96%99%E5%88%86%E6%9E%90-1/" title="资料分析(1)">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">资料分析(1)</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/03/10/SPDK-NVMe-API/" title="SPDK NVMe API">
+                        <span class="hidden-mobile">SPDK NVMe API</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

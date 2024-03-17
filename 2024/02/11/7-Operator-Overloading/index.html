@@ -1,0 +1,869 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/blog.png">
+  <link rel="icon" href="/img/blog.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="次天钊">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、左值&amp;右值  左值是可以标识的、具有地址的表达式或变量。左值通常代表着一个具体的内存位置，因此可以在赋值操作的左侧使用。 右值是临时的、不可标识的表达式或值。右值通常代表计算的结果或临时对象，只能出现在赋值操作的右侧。  在重载操作符时，尤其需要注意返回值是左值还是右值，例如：  默认情况下，+操作符返回一个右值，因此(x + y) &#x3D; 5;的写法就是非法的。 myArray[5] &#x3D;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="7.Operator Overloading">
+<meta property="og:url" content="https://ci-tz.github.io/2024/02/11/7-Operator-Overloading/index.html">
+<meta property="og:site_name" content="Stack">
+<meta property="og:description" content="一、左值&amp;右值  左值是可以标识的、具有地址的表达式或变量。左值通常代表着一个具体的内存位置，因此可以在赋值操作的左侧使用。 右值是临时的、不可标识的表达式或值。右值通常代表计算的结果或临时对象，只能出现在赋值操作的右侧。  在重载操作符时，尤其需要注意返回值是左值还是右值，例如：  默认情况下，+操作符返回一个右值，因此(x + y) &#x3D; 5;的写法就是非法的。 myArray[5] &#x3D;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/11/7-Operator-Overloading/image.png">
+<meta property="article:published_time" content="2024-02-11T10:33:03.000Z">
+<meta property="article:modified_time" content="2024-03-17T09:32:36.187Z">
+<meta property="article:author" content="次天钊">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="Operator">
+<meta property="article:tag" content="Overloading">
+<meta property="article:tag" content="Left Value">
+<meta property="article:tag" content="Right Value">
+<meta property="article:tag" content="Conversion Operator">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ci-tz.github.io/2024/02/11/7-Operator-Overloading/image.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>7.Operator Overloading - Stack</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ci-tz.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Stack Never Flow</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="7.Operator Overloading"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-02-11 18:33" pubdate>
+          2024年2月11日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          22 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">7.Operator Overloading</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="一左值右值">一、左值&amp;右值</h2>
+<ul>
+<li>左值是可以标识的、具有地址的表达式或变量。左值通常代表着一个具体的内存位置，因此可以在赋值操作的左侧使用。</li>
+<li>右值是临时的、不可标识的表达式或值。右值通常代表计算的结果或临时对象，只能出现在赋值操作的右侧。</li>
+</ul>
+<p>在重载操作符时，尤其需要注意返回值是左值还是右值，例如：</p>
+<ul>
+<li>默认情况下，+操作符返回一个右值，因此<code>(x + y) = 5;</code>的写法就是非法的。</li>
+<li><code>myArray[5] = 137;</code>是合法的，因为<code>myArray[5]</code>的返回值是一个左值。</li>
+</ul>
+<p>若要创建一个返回左值的函数，则需让该函数返回一个非const引用，如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-function">string&amp; <span class="hljs-title">LValueFunction</span><span class="hljs-params">()</span></span>;<br></code></pre></td></tr></table></figure>
+<p>若要创建一个返回右值的函数，则需让该函数返回一个const对象，如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-function"><span class="hljs-type">const</span> string <span class="hljs-title">RValueFunction</span><span class="hljs-params">()</span></span>;<br></code></pre></td></tr></table></figure>
+<p>因为返回类型被const修饰，因此类似<code>RValueFunction() = 137;</code>的代码自然是非法的。</p>
+<h2 id="二重载复合赋值操作符op">二、重载复合赋值操作符：<code>op=</code></h2>
+<p>复合赋值操作符用于在C++中修改对象自身，并通常作为成员函数实现。这些操作符允许你以一种简洁的方式更新对象的状态。基本的函数签名如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++">MyClass&amp; <span class="hljs-keyword">operator</span> op= (<span class="hljs-type">const</span> ParameterType&amp; param);<br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>op</code> 代表具体的操作符（如<code>+=</code>或<code>-=</code>）。</li>
+<li><code>ParameterType</code> 表示传入参数的类型。</li>
+</ul>
+<h3 id="示例">2.1 示例</h3>
+<p>考虑一个<code>Vector3D</code>类，它代表一个三维向量。我们将重载<code>+=</code>和<code>-=</code>操作符，以及一元的负号<code>-</code>操作符。</p>
+<p><strong>类定义</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Vector3D</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    Vector3D&amp; <span class="hljs-keyword">operator</span>+=(<span class="hljs-type">const</span> Vector3D&amp; other);<br>    Vector3D&amp; <span class="hljs-keyword">operator</span>-=(<span class="hljs-type">const</span> Vector3D&amp; other);<br>    <span class="hljs-type">const</span> Vector3D <span class="hljs-keyword">operator</span>-() <span class="hljs-type">const</span>;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> NUM_COORDINATES = <span class="hljs-number">3</span>;<br>    <span class="hljs-type">double</span> coordinates[NUM_COORDINATES];<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p><strong>操作符实现</strong></p>
+<ol type="1">
+<li><strong>重载<code>+=</code>操作符</strong>：实现向量加法。</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c++">Vector3D&amp; Vector3D::<span class="hljs-keyword">operator</span>+=(<span class="hljs-type">const</span> Vector3D&amp; other) &#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM_COORDINATES; ++i) &#123;<br>        coordinates[i] += other.coordinates[i];<br>    &#125;<br>    <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>; <span class="hljs-comment">// 支持链式调用</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<ol start="2" type="1">
+<li><strong>重载<code>-=</code>操作符</strong>：利用<code>+=</code>操作符和一元负号操作符来实现向量减法。</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-type">const</span> Vector3D Vector3D::<span class="hljs-keyword">operator</span>-() <span class="hljs-type">const</span> &#123;<br>    Vector3D result;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM_COORDINATES; ++i) &#123;<br>        result.coordinates[i] = -coordinates[i];<br>    &#125;<br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br></code></pre></td></tr></table></figure>
+<ol start="3" type="1">
+<li><strong>重载一元负号<code>-</code>操作符</strong>：返回向量的负值。</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-type">const</span> Vector3D Vector3D::<span class="hljs-keyword">operator</span>-() <span class="hljs-type">const</span> &#123;<br>    Vector3D result;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM_COORDINATES; ++i) &#123;<br>        result.coordinates[i] = -coordinates[i];<br>    &#125;<br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="三重载数学运算符-">三、重载数学运算符：<code>+</code>/<code>-</code></h2>
+<p>重载数学运算符时，遵循以下一般原则确保代码的正确性和高效性：</p>
+<h3 id="一般原则">3.1 一般原则</h3>
+<ol type="1">
+<li><strong>返回值类型</strong>：为了避免返回对象被非预期修改，数学运算符应返回一个不允许修改的临时对象，通常是 <code>const MyClass</code> 类型。</li>
+<li><strong>常量性</strong>：运算符不应修改其操作数，因此重载运算符的函数通常需要被声明为 <code>const</code>。</li>
+<li><strong>自由函数</strong>：为了支持所有相关类型的操作数（包括那些不是类对象的），数学运算符通常作为自由函数（非成员函数）实现。</li>
+<li><strong>效率</strong>：复合赋值运算符（如 <code>+=</code>、<code>-=</code>）通常比单独的数学运算符（如 <code>+</code>、<code>-</code>）更高效，因为复合赋值可以就地修改对象并返回引用，避免了额外的对象复制。</li>
+</ol>
+<h3 id="示例-1">3.2 示例</h3>
+<p>假设存在一个<code>Matrix</code>类，我们想要支持标量乘法。直接将<code>*</code>运算符作为成员函数重载可能会限制其使用（如<code>2.71828 * myMatrix</code>将无法编译），因为左侧操作数不是<code>Matrix</code>类型。</p>
+<p><strong>解决方案</strong></p>
+<p>将乘法运算符<code>*</code>重载为自由函数，支持<code>double</code>和<code>Matrix</code>类型的操作数，并按顺序接收这两个参数。这样做可以无缝支持<code>double * Matrix</code>和<code>Matrix * double</code>两种运算。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-type">const</span> Matrix <span class="hljs-keyword">operator</span>*(<span class="hljs-type">double</span> scalar, <span class="hljs-type">const</span> Matrix&amp; matrix) &#123;<br>    Matrix result = matrix;<br>    result *= scalar; <span class="hljs-comment">// 假设Matrix类已有 *= 运算符重载</span><br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br><br><span class="hljs-type">const</span> Matrix <span class="hljs-keyword">operator</span>*(<span class="hljs-type">const</span> Matrix&amp; matrix, <span class="hljs-type">double</span> scalar) &#123;<br>    <span class="hljs-keyword">return</span> scalar * matrix; <span class="hljs-comment">// 复用上一个运算符实现</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="四重载元素选择运算符">四、重载元素选择运算符：<code>[]</code></h2>
+<p>重载元素选择运算符<code>[]</code>允许类实例通过下标操作访问其元素，类似于数组。为了使这种操作更符合直觉并兼容不同的使用场景（如对常量对象的访问），通常需要提供两个版本的运算符重载：一个用于非常量对象，另一个用于常量对象。</p>
+<h3 id="示例-2">4.1 示例</h3>
+<p>在自定义的<code>string</code>类中，<code>[]</code>运算符的重载允许通过下标访问字符串中的字符。需要实现两个版本：</p>
+<ol type="1">
+<li><strong>非常量版本</strong>：返回一个可修改的字符引用，允许修改通过下标访问的字符。</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-type">char</span> &amp;string::<span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> index) &#123;<br>    <span class="hljs-keyword">return</span> theString[index]; <span class="hljs-comment">// 假设theString是字符数组</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<ol start="2" type="1">
+<li><strong>常量版本</strong>：当<code>string</code>对象被声明为常量时，这个版本的运算符允许访问下标对应的字符，但不允许修改它。返回一个常量引用。</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-type">const</span> <span class="hljs-type">char</span>&amp; string::<span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> index) <span class="hljs-type">const</span> &#123;<br>    <span class="hljs-keyword">return</span> theString[index]; <span class="hljs-comment">// 返回字符的常量引用</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="重要性">4.2 重要性</h3>
+<ul>
+<li><strong>返回左值</strong>：这两个重载的<code>[]</code>运算符都返回引用（一个是<code>char&amp;</code>，另一个是<code>const char&amp;</code>），这允许左值语义，例如允许赋值操作。</li>
+<li><strong>常量对象兼容</strong>：提供<code>const</code>版本的运算符重载使得在常量对象上使用<code>[]</code>运算符成为可能，保持了对常量对象的只读访问。</li>
+</ul>
+<h2 id="五重载流插入操作符">五、重载流插入操作符 <code>&lt;&lt;</code></h2>
+<p>重载流插入操作符 <code>&lt;&lt;</code> 允许自定义类型以流式的方式输出到标准输出流（如<code>std::cout</code>）或其他输出流中。以下是实现这一功能时的关键考虑事项：</p>
+<h3 id="基本原则">5.1 基本原则</h3>
+<ol type="1">
+<li><strong>返回类型</strong>：为了支持连续的流式输出操作（链式调用），如<code>cout &lt;&lt; obj1 &lt;&lt; obj2;</code>。<code>operator&lt;&lt;</code> 应返回对输出流的非<code>const</code>引用。</li>
+<li><strong>实现为自由函数</strong>：为了正确重载对<code>ostream</code>类型的操作符，<code>operator&lt;&lt;</code> 需要实现为自由函数（非成员函数），这样做可以确保操作符的第一个参数是输出流对象的引用。</li>
+<li><strong>友元函数声明</strong>：将这个自由函数声明为类的友元，可以使它访问类的私有或保护成员变量，便于输出类内部的信息。</li>
+</ol>
+<h3 id="示例实现">5.2 示例实现</h3>
+<p>以下示例展示了如何为一个自定义类<code>MyClass</code>重载<code>&lt;&lt;</code>操作符，使其可以输出类的私有成员数据：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 其他成员函数...</span><br>    <span class="hljs-keyword">friend</span> ostream&amp; <span class="hljs-keyword">operator</span>&lt;&lt;(ostream&amp; stream, <span class="hljs-type">const</span> MyClass&amp; mc);<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> someData; <span class="hljs-comment">// 示例私有成员变量</span><br>&#125;;<br><br>ostream&amp; <span class="hljs-keyword">operator</span>&lt;&lt;(ostream&amp; stream, <span class="hljs-type">const</span> MyClass&amp; mc) &#123;<br>    <span class="hljs-comment">// 实现重载的流插入操作符</span><br>    stream &lt;&lt; mc.someData; <span class="hljs-comment">// 假设要输出的是someData成员</span><br>    <span class="hljs-keyword">return</span> stream; <span class="hljs-comment">// 支持连续输出操作</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="六重载递增操作符">六、重载递增（<code>++</code>）操作符</h2>
+<p>在C++中，递增（<code>++</code>）和递减（<code>--</code>）操作符可以被重载以提供自定义类的特定行为。这些操作符有两种形式：前缀（<code>++x</code>，<code>--x</code>）和后缀（<code>x++</code>，<code>x--</code>）。</p>
+<h3 id="前缀形式">6.1 前缀形式</h3>
+<ul>
+<li><strong>定义</strong>：前缀形式直接增加（或减少）变量的值，并返回变量的新值。它是一个更高效的操作，因为它不需要复制对象。</li>
+<li><strong>返回类型</strong>：应返回对象的引用（<code>MyClass&amp;</code>），以允许链式操作。</li>
+</ul>
+<h3 id="后缀形式">6.2 后缀形式</h3>
+<ul>
+<li><p><strong>定义</strong>：后缀形式首先保存变量的原始值，然后增加（或减少）变量的值，最后返回变量原始值的副本。这个过程涉及到额外的复制操作，因此通常比前缀形式慢。</p></li>
+<li><p><strong>返回类型</strong>：为了避免对返回的临时对象进行修改，通常返回对象的值（<code>const MyClass</code>）。</p></li>
+<li><p><strong>区分参数</strong>：后缀操作符通过接受一个<code>int</code>参数来与前缀版本区分，这个参数通常不使用但必须存在。</p></li>
+</ul>
+<h3 id="示例-3">6.3 示例</h3>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    MyClass&amp; <span class="hljs-keyword">operator</span>++();          <span class="hljs-comment">// 前缀递增重载</span><br>    <span class="hljs-type">const</span> MyClass <span class="hljs-keyword">operator</span>++(<span class="hljs-type">int</span>);  <span class="hljs-comment">// 后缀递增重载</span><br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-comment">// 类成员变量</span><br>&#125;;<br><br><span class="hljs-comment">// 前缀递增实现</span><br>MyClass&amp; MyClass::<span class="hljs-keyword">operator</span>++() &#123;<br>    <span class="hljs-comment">// 实现递增逻辑</span><br>    *<span class="hljs-keyword">this</span> += <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>&#125;<br><br><span class="hljs-comment">// 后缀递增实现</span><br><span class="hljs-type">const</span> MyClass MyClass::<span class="hljs-keyword">operator</span>++(<span class="hljs-type">int</span>) &#123;<br>    MyClass oldValue = *<span class="hljs-keyword">this</span>; <span class="hljs-comment">// 保存当前值</span><br>    ++(*<span class="hljs-keyword">this</span>);                <span class="hljs-comment">// 调用前缀递增</span><br>    <span class="hljs-keyword">return</span> oldValue;          <span class="hljs-comment">// 返回原始值</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="七重载关系运算符">七、重载关系运算符</h2>
+<p>一般而言，关系运算符要重载一整套，一旦有了<code>operator&lt;</code>的实现，就可以仅根据<code>operator&lt;</code>来定义所有其他五个关系操作符：</p>
+<p><img src="image.png" srcset="/img/loading.gif" lazyload /></p>
+<h2 id="八类型转换机制">八、类型转换机制</h2>
+<h3 id="转换构造函数">8.1 转换构造函数</h3>
+<p>转换构造函数允许C++中的对象通过单个值的初始化实现类型的隐式转换。这种构造函数接受单一参数，使得类的对象可以从该参数类型隐式转换而来。</p>
+<p><strong>示例</strong>：</p>
+<p>定义一个<code>RationalNumber</code>类，它接受整数作为分子和分母（分母有默认值）的构造函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">RationalNumber</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">RationalNumber</span>(<span class="hljs-type">int</span> numerator = <span class="hljs-number">0</span>, <span class="hljs-type">int</span> denominator = <span class="hljs-number">1</span>);<br>    <span class="hljs-comment">// 其他成员函数定义...</span><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> numerator, denominator;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>这允许你通过以下方式隐式创建<code>RationalNumber</code>对象：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++">RationalNumber myNumber = <span class="hljs-number">137</span>; <span class="hljs-comment">// 隐式调用 RationalNumber(int, int)</span><br></code></pre></td></tr></table></figure>
+<p>这行代码隐式地将整数<code>137</code>转换为<code>RationalNumber</code>类型，实际上调用的是<code>RationalNumber(137)</code>。</p>
+<h3 id="转换操作符">8.2 转换操作符</h3>
+<p>转换操作符是一种特殊的类成员函数，用于实现对象到另一种类型的隐式转换。这些操作符没有显式的返回类型声明，而是通过操作符本身隐式指定返回类型，并通常被声明为<code>const</code>方法。</p>
+<p><strong>示例</strong>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">operator</span> <span class="hljs-title">AnotherClass</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span>; <span class="hljs-comment">// 转换为AnotherClass类型</span><br>    <span class="hljs-function"><span class="hljs-keyword">operator</span> <span class="hljs-title">int</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span>; <span class="hljs-comment">// 转换为int类型</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>这些转换操作符允许<code>MyClass</code>对象在需要<code>AnotherClass</code>或<code>int</code>类型时自动转换。</p>
+<h3 id="explicit关键字">8.3 <code>explicit</code>关键字</h3>
+<p>为了防止不期望的隐式转换带来的潜在问题，C++提供了<code>explicit</code>关键字。<code>explicit</code>用于构造函数或转换操作符时，将禁止该构造函数或转换操作符参与隐式类型转换。</p>
+<p><strong>示例</strong>：</p>
+<p>将转换操作符声明为<code>explicit</code>，意味着这种类型转换只能显式进行，避免了隐式转换可能带来的意外行为。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-title">MyClass</span><span class="hljs-params">(<span class="hljs-type">int</span> size)</span></span>; <span class="hljs-comment">// 阻止隐式转换</span><br>    <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-keyword">operator</span> <span class="hljs-title">bool</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span>; <span class="hljs-comment">// 阻止隐式转换为bool类型</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>使用<code>explicit</code>关键字的构造函数或转换操作符要求必须显式进行类型转换，如使用<code>static_cast&lt;bool&gt;(obj)</code>进行转换，从而提高了代码的安全性和可读性。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/Operator/" class="print-no-link">#Operator</a>
+      
+        <a href="/tags/Overloading/" class="print-no-link">#Overloading</a>
+      
+        <a href="/tags/Left-Value/" class="print-no-link">#Left Value</a>
+      
+        <a href="/tags/Right-Value/" class="print-no-link">#Right Value</a>
+      
+        <a href="/tags/Conversion-Operator/" class="print-no-link">#Conversion Operator</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>7.Operator Overloading</div>
+      <div>https://ci-tz.github.io/2024/02/11/7-Operator-Overloading/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>次天钊</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年2月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/02/12/8-Template-Class/" title="8.Template Class">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">8.Template Class</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/02/08/6-Introduction-to-Class/" title="6.Introduction to Class">
+                        <span class="hidden-mobile">6.Introduction to Class</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

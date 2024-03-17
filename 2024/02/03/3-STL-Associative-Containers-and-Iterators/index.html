@@ -1,0 +1,932 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/blog.png">
+  <link rel="icon" href="/img/blog.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="次天钊">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Associative Containers  没有顺序的概念 使用key而非index访问数据。 包括以下四种：  std::map&lt;T1,T2&gt; std::set&lt;T&gt; std::unordered_map&lt;T1,T2&gt; std::unordered_set&lt;T&gt;   其中，std::map&lt;T1,T2&gt;和std::set&lt;T&amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="3.STL Associative Containers and Iterators">
+<meta property="og:url" content="https://ci-tz.github.io/2024/02/03/3-STL-Associative-Containers-and-Iterators/index.html">
+<meta property="og:site_name" content="Stack">
+<meta property="og:description" content="Associative Containers  没有顺序的概念 使用key而非index访问数据。 包括以下四种：  std::map&lt;T1,T2&gt; std::set&lt;T&gt; std::unordered_map&lt;T1,T2&gt; std::unordered_set&lt;T&gt;   其中，std::map&lt;T1,T2&gt;和std::set&lt;T&amp;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/03/3-STL-Associative-Containers-and-Iterators/iterator.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/03/3-STL-Associative-Containers-and-Iterators/iterator-range.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/03/3-STL-Associative-Containers-and-Iterators/list-iterator-error.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/03/3-STL-Associative-Containers-and-Iterators/iterator-type.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/03/3-STL-Associative-Containers-and-Iterators/iterator-type-1.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/03/3-STL-Associative-Containers-and-Iterators/iterator-invalidate-1.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/03/3-STL-Associative-Containers-and-Iterators/iterator-invalidate-2.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/03/3-STL-Associative-Containers-and-Iterators/iterator-invalidate-3.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/03/3-STL-Associative-Containers-and-Iterators/iterator-invalidate-4.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/03/3-STL-Associative-Containers-and-Iterators/iterator-invalidate-5.png">
+<meta property="article:published_time" content="2024-02-03T10:00:22.000Z">
+<meta property="article:modified_time" content="2024-03-17T09:32:36.167Z">
+<meta property="article:author" content="次天钊">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="STL">
+<meta property="article:tag" content="Map">
+<meta property="article:tag" content="Set">
+<meta property="article:tag" content="Multimap">
+<meta property="article:tag" content="Multiset">
+<meta property="article:tag" content="Iterator">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ci-tz.github.io/2024/02/03/3-STL-Associative-Containers-and-Iterators/iterator.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>3.STL Associative Containers and Iterators - Stack</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ci-tz.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Stack Never Flow</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="3.STL Associative Containers and Iterators"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-02-03 18:00" pubdate>
+          2024年2月3日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          17 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">3.STL Associative Containers and Iterators</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="associative-containers">Associative Containers</h2>
+<ul>
+<li>没有顺序的概念</li>
+<li>使用key而非index访问数据。</li>
+<li>包括以下四种：
+<ul>
+<li><code>std::map&lt;T1,T2&gt;</code></li>
+<li><code>std::set&lt;T&gt;</code></li>
+<li><code>std::unordered_map&lt;T1,T2&gt;</code></li>
+<li><code>std::unordered_set&lt;T&gt;</code></li>
+</ul></li>
+</ul>
+<p>其中，<code>std::map&lt;T1,T2&gt;</code>和<code>std::set&lt;T&gt;</code>的key需要能够使用<code>&lt;</code>来比较大小。</p>
+<p><code>std::unordered_map&lt;T1,T2&gt;</code>和<code>std::unordered_set&lt;T&gt;</code>则基于哈希，需要定义key的哈希函数。</p>
+<h2 id="map">map</h2>
+<p>map支持的几种操作：</p>
+<ul>
+<li>插入k-v对</li>
+<li>删除k-v对</li>
+<li>检查一个特定的<code>key</code>是否存在</li>
+<li>给定key，查询对应的value</li>
+</ul>
+<h3 id="插入k-v对">插入k-v对</h3>
+<ol type="1">
+<li>使用方括号向map中插入k-v对：</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs C++">map&lt;string, <span class="hljs-type">int</span>&gt; numberMap;<br><span class="hljs-comment">// Indexing into a map into a nonexistent key implicitly creates a key/value pair.</span><br>numberMap[<span class="hljs-string">&quot;zero&quot;</span>] = <span class="hljs-number">0</span>; <br>numberMap[<span class="hljs-string">&quot;one&quot;</span>] = <span class="hljs-number">1</span>;<br>numberMap[<span class="hljs-string">&quot;two&quot;</span>] = <span class="hljs-number">2</span>;<br></code></pre></td></tr></table></figure>
+<ol start="2" type="1">
+<li>使用<code>insert</code>插入k-v对</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c++">map&lt;string, <span class="hljs-type">int</span>&gt; numberMap;<br>numberMap.<span class="hljs-built_in">insert</span>(<span class="hljs-built_in">make_pair</span>(<span class="hljs-string">&quot;zero&quot;</span>, <span class="hljs-number">0</span>));<br>numberMap.<span class="hljs-built_in">insert</span>(<span class="hljs-built_in">make_pair</span>(<span class="hljs-string">&quot;one&quot;</span>, <span class="hljs-number">1</span>));<br>numberMap.<span class="hljs-built_in">insert</span>(<span class="hljs-built_in">make_pair</span>(<span class="hljs-string">&quot;two&quot;</span>, <span class="hljs-number">2</span>));<br></code></pre></td></tr></table></figure>
+<p>使用<code>insert</code>和<code>[]</code>的区别：</p>
+<p>如果尝试使用<code>insert</code>函数将k-v对插入到map中，而该key已经存在，则map将不会插入k-v对，也不会更新与现有key关联的value。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">/* Populate a map using [ ] */</span><br>map&lt;string, string&gt; one;<br>one[<span class="hljs-string">&quot;C++&quot;</span>] = <span class="hljs-string">&quot;sad&quot;</span>;<br>one[<span class="hljs-string">&quot;C++&quot;</span>] = <span class="hljs-string">&quot;happy&quot;</span>;  <span class="hljs-comment">// one[&quot;C++&quot;] == &quot;happy&quot;</span><br><br><span class="hljs-comment">/* Populate a map using insert */</span><br>map&lt;string, string&gt; two;<br>two.<span class="hljs-built_in">insert</span>(<span class="hljs-built_in">make_pair</span>(<span class="hljs-string">&quot;C++&quot;</span>, <span class="hljs-string">&quot;sad&quot;</span>));<br>two.<span class="hljs-built_in">insert</span>(<span class="hljs-built_in">make_pair</span>(<span class="hljs-string">&quot;C++&quot;</span>, <span class="hljs-string">&quot;happy&quot;</span>)); <span class="hljs-comment">// one[&quot;C++&quot;] == &quot;sad&quot;</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>map的insert函数返回一个类型为<code>&lt;iterator, bool&gt;</code>的pair值。</p>
+<p>pair中的bool值表示插入操作是否成功。结果为true表示k-v对已添加，结果为false表示key已经存在。</p>
+<p>pair中迭代器指向映射中的k-v对。如果k-v对是新添加的，则该迭代器指向新插入的k-v对；如果k-v对已经存在，则迭代器指向阻止操作的现有k-v对。</p>
+<p>因此，可以这样使用<code>insert</code>插入k-v对：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">/* Try to insert normally. */</span><br>pair&lt;map&lt;string, <span class="hljs-type">int</span>&gt;::iterator, <span class="hljs-type">bool</span>&gt; result = myMap.<span class="hljs-built_in">insert</span>(<span class="hljs-built_in">make_pair</span>(<span class="hljs-string">&quot;STL&quot;</span>, <span class="hljs-number">137</span>));<br><span class="hljs-comment">/* If insertion failed, manually set the value. */</span><br><span class="hljs-keyword">if</span> (!result.second)<br>    result.first-&gt;second = <span class="hljs-number">137</span>;<br></code></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="删除k-v对">删除k-v对</h3>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++">myMap.<span class="hljs-built_in">erase</span>(<span class="hljs-string">&quot;key&quot;</span>);<br></code></pre></td></tr></table></figure>
+<h3 id="检查特定的key是否存在">检查特定的<code>key</code>是否存在</h3>
+<ol type="1">
+<li>使用<code>count</code>成员函数</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">if</span> (myMap.<span class="hljs-built_in">count</span>(key) == <span class="hljs-number">0</span>) <br>    cout &lt;&lt; “Not Found”;<br></code></pre></td></tr></table></figure>
+<ol start="2" type="1">
+<li>使用<code>std::find()</code></li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">if</span> (<span class="hljs-built_in">find</span>(myMap.<span class="hljs-built_in">begin</span>(), myMap.<span class="hljs-built_in">end</span>(), key) == myMap.<span class="hljs-built_in">end</span>())<br>    cout &lt;&lt; “Not Found”;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>count实际上只是对find函数的调用。所以find稍微快一点。</p>
+</blockquote>
+<h3 id="给定key查询对应的value">给定key，查询对应的value</h3>
+<ol type="1">
+<li>使用<code>[]</code></li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++">cout &lt;&lt; numberMap[<span class="hljs-string">&quot;xyzzy&quot;</span>] &lt;&lt; endl;<br></code></pre></td></tr></table></figure>
+<ol start="2" type="1">
+<li>使用<code>.at</code>成员函数</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++">cout &lt;&lt; myMap.<span class="hljs-built_in">at</span>(<span class="hljs-number">1</span>) &lt;&lt; endl;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>两者的区别：</strong></p>
+<p>若给定的<code>key</code>不存在，<code>[]</code>则会隐式的创建k-v对，以给定key为键，值为默认值。</p>
+<p>若给定的<code>key</code>不存在，使用<code>.at</code>查询时则会报错。</p>
+<p>例子：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c++">std::map&lt;<span class="hljs-type">int</span>, std::string&gt; myMap;<br>myMap[<span class="hljs-number">1</span>] = <span class="hljs-string">&quot;One&quot;</span>;<br>cout &lt;&lt; myMap.<span class="hljs-built_in">at</span>(<span class="hljs-number">1</span>) &lt;&lt; endl; <span class="hljs-comment">// 输出： &quot;one&quot;</span><br>cout &lt;&lt; myMap.<span class="hljs-built_in">at</span>(<span class="hljs-number">2</span>) &lt;&lt; endl; <span class="hljs-comment">// 抛出 std::out_of_range 异常</span><br>cout &lt;&lt; myMap[<span class="hljs-number">2</span>] &lt;&lt; endl;    <span class="hljs-comment">// 输出空字符串</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="set">Set</h2>
+<ul>
+<li>set是没有value的map的一种特殊情况。
+<ul>
+<li>对应的value为true（若key存在），为false（若key不存在）。</li>
+</ul></li>
+</ul>
+<p>举例：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs C++">set&lt;<span class="hljs-type">int</span>&gt; mySet;<br>mySet.<span class="hljs-built_in">insert</span>(<span class="hljs-number">137</span>); <span class="hljs-comment">// Now contains: 137</span><br>mySet.<span class="hljs-built_in">insert</span>(<span class="hljs-number">42</span>);  <span class="hljs-comment">// Now contains: 42 137</span><br>mySet.<span class="hljs-built_in">insert</span>(<span class="hljs-number">137</span>); <span class="hljs-comment">// Now contains: 42 137,没有改变集合的内容。集合不允许重复元素。</span><br><br><span class="hljs-keyword">if</span> (mySet.<span class="hljs-built_in">count</span>(<span class="hljs-number">137</span>)) <span class="hljs-comment">//.count用于检查元素是否存在于集合中</span><br>    cout &lt;&lt; <span class="hljs-string">&quot;137 is in the set.&quot;</span> &lt;&lt; endl; <span class="hljs-comment">// Printed</span><br><span class="hljs-keyword">if</span> (!mySet.<span class="hljs-built_in">count</span>(<span class="hljs-number">500</span>))<br>    cout &lt;&lt; <span class="hljs-string">&quot;500 is not in the set.&quot;</span> &lt;&lt; endl; <span class="hljs-comment">// Printed</span><br>    <br>mySet.<span class="hljs-built_in">erase</span>(<span class="hljs-number">137</span>); <span class="hljs-comment">// Removes 137, if it exists.</span><br></code></pre></td></tr></table></figure>
+<h2 id="iterator">Iterator</h2>
+<p>每个容器以不同的格式存储其数据，迭代器为访问存储在容器中的数据提供了一种干净、一致的机制，而不管这些数据是如何存储的。</p>
+<p>Every STL container class exports a member function <code>begin()</code> which yields an iterator pointing to <strong>the first element of that container</strong>.</p>
+<p>Each STL container exports a special function called <code>end()</code> that returns an iterator to <strong>the element one past the end of the container</strong>.</p>
+<p><img src="iterator.png" srcset="/img/loading.gif" lazyload /></p>
+<p>使用迭代器遍历容器：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs C++">vector&lt;<span class="hljs-type">int</span>&gt; myVector = <span class="hljs-comment">/* ... some initialization ... */</span> <br><span class="hljs-keyword">for</span> (vector&lt;<span class="hljs-type">int</span>&gt;::iterator itr = myVector.<span class="hljs-built_in">begin</span>(); <br>     itr != myVector.<span class="hljs-built_in">end</span>(); ++itr)<br>    cout &lt;&lt; *itr &lt;&lt; endl;<br></code></pre></td></tr></table></figure>
+<p>迭代器的美妙之处在于它们可以在任何STL容器上工作，包括set。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs C++">set&lt;<span class="hljs-type">int</span>&gt; mySet = <span class="hljs-comment">/* ... some initialization ... */</span><br><span class="hljs-keyword">for</span> (set&lt;<span class="hljs-type">int</span>&gt;::iterator itr = mySet.<span class="hljs-built_in">begin</span>(); <br>     itr != mySet.<span class="hljs-built_in">end</span>(); ++itr)<br>    cout &lt;&lt; *itr &lt;&lt; endl;<br></code></pre></td></tr></table></figure>
+<p>迭代器的用法不止有遍历元素。例如：</p>
+<p><strong>排序</strong>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C++">std::<span class="hljs-built_in">sort</span>(vec.<span class="hljs-built_in">begin</span>(), vec.<span class="hljs-built_in">end</span>());<br></code></pre></td></tr></table></figure>
+<p><strong>搜索：</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-type">const</span> <span class="hljs-type">int</span> elemToFind = <span class="hljs-number">5</span>; <br>vector::iterator it = std::<span class="hljs-built_in">find</span>(vec.<span class="hljs-built_in">begin</span>(),  vec.<span class="hljs-built_in">end</span>(), elemToFind);<br><span class="hljs-keyword">if</span>(it != vec.<span class="hljs-built_in">end</span>()) &#123; <br>    cout &lt;&lt; <span class="hljs-string">&quot;Found: &quot;</span> &lt;&lt; *it &lt;&lt; endl; <br>&#125; <span class="hljs-keyword">else</span> &#123; <br>    cout &lt;&lt; <span class="hljs-string">&quot;Element not found!&quot;</span> &lt;&lt; endl; <br>&#125; <br></code></pre></td></tr></table></figure>
+<p><strong>确定范围：</strong></p>
+<p>单个迭代器指向容器类中的单个位置，并表示间接读取或写入该值的方法。</p>
+<p>一对迭代器定义了两个位置，从而定义了一个元素范围。</p>
+<p>set中提供了两个成员函数：</p>
+<ul>
+<li><code>lower_bound</code>：接受一个值，然后返回一个迭代器，指向集合中第一个大于或等于该值的元素。</li>
+<li><code>upper_bound</code>：接受一个值，返回一个迭代器，指向集合中第一个严格大于该值的元素。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-comment">// iterates over all elements in the set in the range [10, 100]</span><br>set&lt;<span class="hljs-type">int</span>&gt;::iterator stop = mySet.<span class="hljs-built_in">upper_bound</span>(<span class="hljs-number">100</span>);<br><span class="hljs-keyword">for</span> (set&lt;<span class="hljs-type">int</span>&gt;::iterator itr = mySet.<span class="hljs-built_in">lower_bound</span>(<span class="hljs-number">10</span>); itr != stop; ++itr)<br>    <span class="hljs-comment">/* ... perform tasks... */</span><br></code></pre></td></tr></table></figure>
+<p><img src="iterator-range.png" srcset="/img/loading.gif" lazyload /></p>
+<p>range based for loop的本质就是使用迭代器访问的简写：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// range based for loop</span><br>map&lt;string, <span class="hljs-type">int</span>&gt; myMap;<br><span class="hljs-keyword">for</span>(<span class="hljs-keyword">auto</span> thing : myMap) &#123;<br>    <span class="hljs-built_in">doSomething</span>(thing.first, thing.second);<br>&#125;<br><br><span class="hljs-comment">// 本质：</span><br>map&lt;string, <span class="hljs-type">int</span>&gt; myMap;<br><span class="hljs-keyword">for</span>(<span class="hljs-keyword">auto</span> iter = myMap.<span class="hljs-built_in">begin</span>(); iter != myMap.<span class="hljs-built_in">end</span>(); ++iter) &#123;<br>    <span class="hljs-keyword">auto</span> thing = *iter;<br>    <span class="hljs-built_in">doSomething</span>(thing.first, thing.second);<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="map-iterators">Map Iterators</h2>
+<ul>
+<li>map的迭代器略有不同，因为map同时拥有key和value。</li>
+<li>如果解引用一个<code>map&lt;KeyType, ValueType&gt;</code>的迭代器，会得到一个类型为<code>pair&lt;const KeyType, ValueType&gt;</code>的pair</li>
+</ul>
+<p>先看看<code>pair</code>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs C++">pair&lt;<span class="hljs-type">int</span>, string&gt; myPair;<br>myPair.first = <span class="hljs-number">137</span>; <br>myPair.second = <span class="hljs-string">&quot;C++ is awesome!&quot;</span>;<br><br>pair&lt;<span class="hljs-type">int</span>, string&gt; myPair = <span class="hljs-built_in">make_pair</span>(<span class="hljs-number">137</span>, <span class="hljs-string">&quot;string!&quot;</span>);  <span class="hljs-comment">// create a pair on-the-fly</span><br></code></pre></td></tr></table></figure>
+<p>map迭代器的使用举例：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c++">map&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; m;<br>map&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt;::iterator i = m.<span class="hljs-built_in">begin</span>();<br>map&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt;::iterator end = m.<span class="hljs-built_in">end</span>();<br><span class="hljs-keyword">while</span>(i != end) &#123;<br>    cout &lt;&lt; (*i).first &lt;&lt; (*i).second &lt;&lt; endl;<br>    ++i;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="iterator-types">Iterator Types</h2>
+<p>一些看似很合理的使用迭代器的方法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-function">std::vector <span class="hljs-title">v</span><span class="hljs-params">(<span class="hljs-number">10</span>)</span></span>; <br><span class="hljs-keyword">auto</span> mid = v.<span class="hljs-built_in">begin</span>() + v.<span class="hljs-built_in">size</span>()/<span class="hljs-number">2</span>;<br><br><span class="hljs-function">std::deque <span class="hljs-title">d</span><span class="hljs-params">(<span class="hljs-number">13</span>)</span></span>; <br><span class="hljs-keyword">auto</span> some_iter = d.<span class="hljs-built_in">begin</span>() + <span class="hljs-number">3</span>;<br></code></pre></td></tr></table></figure>
+<p>但如果对<code>std::list</code>（双向链表）执行上述操作就会报错：</p>
+<p><img src="list-iterator-error.png" srcset="/img/loading.gif" lazyload /></p>
+<p>这是由迭代器的类型导致的。</p>
+<p>迭代器有5种类型：</p>
+<p><img src="iterator-type.png" srcset="/img/loading.gif" lazyload /></p>
+<p>所有类型的迭代器都有一些共同的特征:</p>
+<ul>
+<li>可以从已有的迭代器中创建</li>
+<li>可以使用++</li>
+<li>可以使用==和!=比较</li>
+</ul>
+<p>其余特征则取决于迭代器的类型：</p>
+<p><img src="iterator-type-1.png" srcset="/img/loading.gif" lazyload /></p>
+<p><strong>Input Iterators</strong></p>
+<p>只读，即只能在表达式的右侧解引用。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs C++">vector&lt;<span class="hljs-type">int</span>&gt; v = ... <br>vector&lt;<span class="hljs-type">int</span>&gt;::iterator itr = v.<span class="hljs-built_in">begin</span>(); <br><span class="hljs-type">int</span> val = *itr; <br>*itr = <span class="hljs-number">12</span>; <span class="hljs-comment">// 错误！</span><br></code></pre></td></tr></table></figure>
+<p><strong>Output Iterators</strong></p>
+<p>只能写，即只能在表达式的左侧解引用。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs C++">vector&lt;<span class="hljs-type">int</span>&gt; v = ... <br>vector&lt;<span class="hljs-type">int</span>&gt;::iterator itr = v.<span class="hljs-built_in">begin</span>(); <br>*itr = <span class="hljs-number">12</span>;<br><span class="hljs-type">int</span> val = *itr;  <span class="hljs-comment">// 错误！！</span><br></code></pre></td></tr></table></figure>
+<p><strong>Forward Iterators</strong></p>
+<p>可以读写以及++</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs C++">vector&lt;<span class="hljs-type">int</span>&gt; v = ... <br>vector&lt;<span class="hljs-type">int</span>&gt;::iterator itr = v.<span class="hljs-built_in">begin</span>(); <br>*itr = <span class="hljs-number">12</span>;<br><span class="hljs-type">int</span> val = *itr; <br></code></pre></td></tr></table></figure>
+<p><strong>Bidirectional Iterators</strong></p>
+<p>与Forward Iterators相同且可以--</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs C++">vector&lt;<span class="hljs-type">int</span>&gt; v = ... <br>vector&lt;<span class="hljs-type">int</span>&gt;::iterator itr = v.<span class="hljs-built_in">begin</span>(); <br>++itr; <br><span class="hljs-type">int</span> val = *itr; <br>--itr; <br><span class="hljs-type">int</span> val2 = *itr; <br></code></pre></td></tr></table></figure>
+<p><strong>Random Access Iterators</strong></p>
+<p>和Bidirectional Iterators相同且可以使用+和-任意递增或递减</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs C++">vector&lt;<span class="hljs-type">int</span>&gt; v = ... <br>vector&lt;<span class="hljs-type">int</span>&gt;::iterator itr = v.<span class="hljs-built_in">begin</span>(); <br>itr += <span class="hljs-number">3</span>;<br><span class="hljs-type">int</span> val = *itr; <br></code></pre></td></tr></table></figure>
+<h2 id="invalidated-iterators">invalidated iterators</h2>
+<p><img src="iterator-invalidate-1.png" srcset="/img/loading.gif" lazyload /></p>
+<p><strong>例1：</strong></p>
+<p><img src="iterator-invalidate-2.png" srcset="/img/loading.gif" lazyload /></p>
+<p>修改后：</p>
+<p><img src="iterator-invalidate-3.png" srcset="/img/loading.gif" lazyload /></p>
+<p>例2：</p>
+<p><img src="iterator-invalidate-4.png" srcset="/img/loading.gif" lazyload /></p>
+<p>修改：</p>
+<p><img src="iterator-invalidate-5.png" srcset="/img/loading.gif" lazyload /></p>
+<h2 id="multicontainers">Multicontainers</h2>
+<p><code>multimap</code>：一个key可以有多个不同的value。</p>
+<p><code>multiset</code>：可以包含多个key。</p>
+<p>与普通版本的区别：</p>
+<ul>
+<li><code>count</code>函数将返回容器中元素的实际数量，而不仅仅是二进制0或1。</li>
+<li><code>find</code>函数仍然会返回迭代器，但它所指向的元素不能保证是该元素在容器中的唯一副本。</li>
+<li><code>erase</code>将擦除指定键或元素的所有副本。</li>
+<li>在<code>multimap</code>中不存在方括号，需要使用<code>insert</code>函数插入k-v对</li>
+<li><code>equal_range</code>，返回一对<code>&lt;iterator, iterator&gt;</code>对象，表示容器中等于指定值的成员的范围，例如：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs C++">multimap&lt;string, <span class="hljs-type">int</span>&gt; myMultiMap;<br><span class="hljs-comment">/* Store the result of the equal_range */</span><br>pair&lt;multimap&lt;string, <span class="hljs-type">int</span>&gt;::iterator, multimap&lt;string, <span class="hljs-type">int</span>&gt;::iterator&gt;<br>    myPair = myMultiMap.<span class="hljs-built_in">equal_range</span>(<span class="hljs-string">&quot;STL&quot;</span>);<br><span class="hljs-comment">/* Iterate over it! */</span><br>multimap&lt;string, <span class="hljs-type">int</span>&gt;::iterator itr;<br><span class="hljs-keyword">for</span>(itr = myPair.first; itr != myPair.second; ++itr)<br>   cout &lt;&lt; itr-&gt;first &lt;&lt; <span class="hljs-string">&quot;: &quot;</span> &lt;&lt; itr-&gt;second &lt;&lt; endl;<br></code></pre></td></tr></table></figure>
+<p>多容器在实践中相当少见，部分原因是它们可以很容易地使用其他方法来模拟。</p>
+<p>例如，<code>multimap&lt;string, int&gt;</code>的行为类似于<code>map&lt;string, vector&lt;int&gt; &gt;</code>，因为两者都是将字符串映射到一定数量的<code>int</code>。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/STL/" class="print-no-link">#STL</a>
+      
+        <a href="/tags/Map/" class="print-no-link">#Map</a>
+      
+        <a href="/tags/Set/" class="print-no-link">#Set</a>
+      
+        <a href="/tags/Multimap/" class="print-no-link">#Multimap</a>
+      
+        <a href="/tags/Multiset/" class="print-no-link">#Multiset</a>
+      
+        <a href="/tags/Iterator/" class="print-no-link">#Iterator</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>3.STL Associative Containers and Iterators</div>
+      <div>https://ci-tz.github.io/2024/02/03/3-STL-Associative-Containers-and-Iterators/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>次天钊</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年2月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/02/05/4-Template-Function/" title="4.Template Function">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">4.Template Function</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/02/02/2-STL-Sequence-Containers/" title="2.STL Sequence Containers">
+                        <span class="hidden-mobile">2.STL Sequence Containers</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,786 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/blog.png">
+  <link rel="icon" href="/img/blog.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="次天钊">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前提 若在 FEMU 上进行测试，需调整 FEMU 以解决 NVMe 协议的 Admin 命令未实现的问题。以下方法仅为暂时屏蔽该问题。 1234567891011--- a&#x2F;hw&#x2F;femu&#x2F;nvme-admin.c+++ b&#x2F;hw&#x2F;femu&#x2F;nvme-admin.c@@ -999,6 +999,8 @@ static uint16_t nvme_admin_cmd(FemuCtrl *n, Nv">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用FIO测试SPDK性能">
+<meta property="og:url" content="https://ci-tz.github.io/2024/03/04/%E4%BD%BF%E7%94%A8FIO%E6%B5%8B%E8%AF%95SPDK%E6%80%A7%E8%83%BD/index.html">
+<meta property="og:site_name" content="Stack">
+<meta property="og:description" content="前提 若在 FEMU 上进行测试，需调整 FEMU 以解决 NVMe 协议的 Admin 命令未实现的问题。以下方法仅为暂时屏蔽该问题。 1234567891011--- a&#x2F;hw&#x2F;femu&#x2F;nvme-admin.c+++ b&#x2F;hw&#x2F;femu&#x2F;nvme-admin.c@@ -999,6 +999,8 @@ static uint16_t nvme_admin_cmd(FemuCtrl *n, Nv">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-03T17:26:55.000Z">
+<meta property="article:modified_time" content="2024-03-17T09:32:36.195Z">
+<meta property="article:author" content="次天钊">
+<meta property="article:tag" content="SPDK">
+<meta property="article:tag" content="FIO">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>使用FIO测试SPDK性能 - Stack</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ci-tz.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Stack Never Flow</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="使用FIO测试SPDK性能"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-04 01:26" pubdate>
+          2024年3月4日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          885 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          8 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">使用FIO测试SPDK性能</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="前提">前提</h2>
+<p>若在 FEMU 上进行测试，需调整 FEMU 以解决 NVMe 协议的 Admin 命令未实现的问题。以下方法仅为暂时屏蔽该问题。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c">--- a/hw/femu/nvme-admin.c<br>+++ b/hw/femu/nvme-admin.c<br>@@ <span class="hljs-number">-999</span>,<span class="hljs-number">6</span> +<span class="hljs-number">999</span>,<span class="hljs-number">8</span> @@ <span class="hljs-type">static</span> <span class="hljs-type">uint16_t</span> <span class="hljs-title function_">nvme_admin_cmd</span><span class="hljs-params">(FemuCtrl *n, NvmeCmd *cmd, NvmeCqe *cqe)</span><br> <span class="hljs-keyword">case</span> NVME_ADM_CMD_SET_DB_MEMORY:<br>   <span class="hljs-title function_">femu_debug</span><span class="hljs-params">(<span class="hljs-string">&quot;admin cmd,set_db_memory\n&quot;</span>)</span>;<br>   <span class="hljs-keyword">return</span> nvme_set_db_memory(n, cmd);<br>+    <span class="hljs-keyword">case</span> NVME_ADM_CMD_ASYNC_EV_REQ:<br>+        <span class="hljs-keyword">return</span> NVME_SUCCESS;<br>     <span class="hljs-keyword">case</span> NVME_ADM_CMD_ACTIVATE_FW:<br>     <span class="hljs-keyword">case</span> NVME_ADM_CMD_DOWNLOAD_FW:<br>     <span class="hljs-keyword">case</span> NVME_ADM_CMD_SECURITY_SEND:<br></code></pre></td></tr></table></figure>
+<h2 id="一编译fio">一、编译FIO</h2>
+<ol type="1">
+<li>克隆FIO源代码库：</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">git clone https://github.com/axboe/fio<br>cd fio<br></code></pre></td></tr></table></figure>
+<ol start="2" type="1">
+<li>编译并安装FIO：</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">make<br>make install<br></code></pre></td></tr></table></figure>
+<h2 id="二编译spdk">二、编译SPDK</h2>
+<ol type="1">
+<li>克隆SPDK源代码库</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">git clone https://github.com/spdk/spdk<br>cd spdk<br>git submodule update --init<br></code></pre></td></tr></table></figure>
+<ol start="2" type="1">
+<li>启用FIO插件，运行SPDK配置脚本</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">./configure --with-fio=/path/to/fio/repo # 示例路径：/user/ctz/fio<br></code></pre></td></tr></table></figure>
+<ol start="3" type="1">
+<li>安装依赖并编译SPDK：</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">./scripts/pkgdep.sh<br>make<br></code></pre></td></tr></table></figure>
+<p>编译完成后，在 <code>&lt;spdk_repo&gt;/build/fio</code> 目录下会生成 <code>fio_plugin</code> 的可执行文件：<code>spdk_bdev</code> 和 <code>spdk_nvme</code>。</p>
+<p>在 SPDK 用户态模式下，SPDK 将设备从内核驱动中解绑并绑定到 SPDK 提供的用户层驱动上，因此解绑后用户无法通过 <code>lsblk</code> 等指令直接查看设备。为了方便使用 FIO 测试设备性能，SPDK 推出了 FIO 插件。</p>
+<p>SPDK 提供两种形式的 fio_plugin：</p>
+<ul>
+<li><code>spdk_nvme</code>：基于裸盘 NVMe 的 fio_plugin，通过 SPDK 用户态驱动直接访问裸盘，用于测试裸盘性能。</li>
+<li><code>spdk_bdev</code>：基于 bdev 的 fio_plugin，通过 SPDK 块设备 bdev 层进行 I/O 测试，用于测试 SPDK bdev 的性能。</li>
+</ul>
+<h2 id="三从内核解绑设备">三、从内核解绑设备</h2>
+<p>使用 SPDK 提供的 <code>setup.sh</code> 脚本，将存储设备从内核驱动中解绑并分配大页：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd /path/to/spdk<br>sudo ./scripts/setup.sh<br></code></pre></td></tr></table></figure>
+<p>创建 JSON 配置文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo scripts/gen_nvme.sh --json-with-subsystems &gt; /tmp/bdev.json<br></code></pre></td></tr></table></figure>
+<p>JSON 配置文件示例：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;subsystems&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;subsystem&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;bdev&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;config&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>        <span class="hljs-punctuation">&#123;</span><br>          <span class="hljs-attr">&quot;method&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;bdev_nvme_attach_controller&quot;</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-attr">&quot;params&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>            <span class="hljs-attr">&quot;trtype&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;PCIe&quot;</span><span class="hljs-punctuation">,</span><br>            <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Nvme0&quot;</span><span class="hljs-punctuation">,</span><br>            <span class="hljs-attr">&quot;traddr&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;0000:00:05.0&quot;</span><br>          <span class="hljs-punctuation">&#125;</span><br>        <span class="hljs-punctuation">&#125;</span><br>      <span class="hljs-punctuation">]</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+<h2 id="四准备fio配置文件">四、准备FIO配置文件</h2>
+<p>FIO 配置文件与普通配置文件大致相似，但为了使用 SPDK 编译生成的插件，需要设置 <code>ioengine</code> 和 <code>spdk_json_conf</code>。</p>
+<p><code>ioengine</code> 需指定编译好的 <code>spdk_bdev</code> 或 <code>spdk_nvme</code> 的路径，<code>spdk_json_conf</code> 需指定第三步中生成的 JSON 文件。</p>
+<p>FIO 配置文件示例：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[global]</span><br><span class="hljs-attr">ioengine</span>=&lt;spdk_repo&gt;/build/fio/spdk_bdev <br><span class="hljs-attr">spdk_json_conf</span>=/tmp/bdev.json<br><br><span class="hljs-attr">thread</span>=<span class="hljs-number">1</span><br><span class="hljs-attr">direct</span>=<span class="hljs-number">1</span><br><span class="hljs-attr">group_reporting</span>=<span class="hljs-number">1</span><br><br><span class="hljs-attr">bs</span>=<span class="hljs-number">4</span>k<br><span class="hljs-attr">rw</span>=randread<br><span class="hljs-attr">rwmixread</span>=<span class="hljs-number">70</span><br><span class="hljs-attr">time_based</span>=<span class="hljs-number">1</span><br><span class="hljs-attr">runtime</span>=<span class="hljs-number">10</span><br><span class="hljs-attr">norandommap</span>=<span class="hljs-number">1</span><br><br><span class="hljs-section">[filename0]</span><br><span class="hljs-attr">filename</span>=Nvme0n1<br><span class="hljs-attr">iodepth</span>=<span class="hljs-number">8</span><br></code></pre></td></tr></table></figure>
+<h2 id="五运行fio">五、运行FIO</h2>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo fio fio.conf<br></code></pre></td></tr></table></figure>
+<p>输出示例：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs routeros">filename0: (<span class="hljs-attribute">g</span>=0): <span class="hljs-attribute">rw</span>=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, <span class="hljs-attribute">ioengine</span>=spdk_bdev, <span class="hljs-attribute">iodepth</span>=8<br>fio-3.36-19-gbdf99<br>Starting 1 thread<br>Jobs: 1 (<span class="hljs-attribute">f</span>=1): [r(1)][100.0%][<span class="hljs-attribute">r</span>=2957MiB/s][<span class="hljs-attribute">r</span>=757k IOPS][eta 00m:00s]<br>filename0: (<span class="hljs-attribute">groupid</span>=0, <span class="hljs-attribute">jobs</span>=1): err= 0: <span class="hljs-attribute">pid</span>=47257: Fri Mar  1 08:09:14 2024<br>  read: <span class="hljs-attribute">IOPS</span>=754k, <span class="hljs-attribute">BW</span>=2944MiB/s (3087MB/s)(28.8GiB/10001msec)<br>    slat (nsec): <span class="hljs-attribute">min</span>=142, <span class="hljs-attribute">max</span>=22523, <span class="hljs-attribute">avg</span>=153.40, <span class="hljs-attribute">stdev</span>=38.74<br>    clat (usec): <span class="hljs-attribute">min</span>=2, <span class="hljs-attribute">max</span>=346, <span class="hljs-attribute">avg</span>=10.07, stdev= 1.91<br>     lat (usec): <span class="hljs-attribute">min</span>=2, <span class="hljs-attribute">max</span>=346, <span class="hljs-attribute">avg</span>=10.23, stdev= 1.91<br>    clat percentiles (nsec):<br>     |  1.00th=[ 5472],  5.00th=[ 7648], 10.00th=[ 8512], 20.00th=[ 9024],<br>     | 30.00th=[ 9408], 40.00th=[ 9664], 50.00th=[ 9920], 60.00th=[10176],<br>     | 70.00th=[10560], 80.00th=[10944], 90.00th=[11840], 95.00th=[13376],<br>     | 99.00th=[15680], 99.50th=[16768], 99.90th=[20352], 99.95th=[21632],<br>     | 99.99th=[28544]<br>   bw (  MiB/s): min= 2845, max= 2960, <span class="hljs-attribute">per</span>=100.00%, <span class="hljs-attribute">avg</span>=2945.67, <span class="hljs-attribute">stdev</span>=24.66, <span class="hljs-attribute">samples</span>=19<br>   iops        : <span class="hljs-attribute">min</span>=728552, <span class="hljs-attribute">max</span>=757862, <span class="hljs-attribute">avg</span>=754091.26, <span class="hljs-attribute">stdev</span>=6312.12, <span class="hljs-attribute">samples</span>=19<br>  lat (usec)   : <span class="hljs-attribute">4</span>=0.07%, <span class="hljs-attribute">10</span>=52.90%, <span class="hljs-attribute">20</span>=46.92%, <span class="hljs-attribute">50</span>=0.11%, <span class="hljs-attribute">100</span>=0.01%<br>  lat (usec)   : <span class="hljs-attribute">250</span>=0.01%, <span class="hljs-attribute">500</span>=0.01%<br>  cpu          : <span class="hljs-attribute">usr</span>=99.97%, <span class="hljs-attribute">sys</span>=0.00%, <span class="hljs-attribute">ctx</span>=31, <span class="hljs-attribute">majf</span>=0, <span class="hljs-attribute">minf</span>=0<br>  IO depths    : <span class="hljs-attribute">1</span>=0.1%, <span class="hljs-attribute">2</span>=0.1%, <span class="hljs-attribute">4</span>=41.0%, <span class="hljs-attribute">8</span>=58.8%, <span class="hljs-attribute">16</span>=0.0%, <span class="hljs-attribute">32</span>=0.0%, &gt;=<span class="hljs-attribute">64</span>=0.0%<br>     submit    : <span class="hljs-attribute">0</span>=0.0%, <span class="hljs-attribute">4</span>=100.0%, <span class="hljs-attribute">8</span>=0.0%, <span class="hljs-attribute">16</span>=0.0%, <span class="hljs-attribute">32</span>=0.0%, <span class="hljs-attribute">64</span>=0.0%, &gt;=<span class="hljs-attribute">64</span>=0.0%<br>     complete  : <span class="hljs-attribute">0</span>=0.0%, <span class="hljs-attribute">4</span>=99.7%, <span class="hljs-attribute">8</span>=0.3%, <span class="hljs-attribute">16</span>=0.0%, <span class="hljs-attribute">32</span>=0.0%, <span class="hljs-attribute">64</span>=0.0%, &gt;=<span class="hljs-attribute">64</span>=0.0%<br>     issued rwts: <span class="hljs-attribute">total</span>=7537136,0,0,0 <span class="hljs-attribute">short</span>=0,0,0,0 <span class="hljs-attribute">dropped</span>=0,0,0,0<br>     latency   : <span class="hljs-attribute">target</span>=0, <span class="hljs-attribute">window</span>=0, <span class="hljs-attribute">percentile</span>=100.00%, <span class="hljs-attribute">depth</span>=8<br><br><span class="hljs-built_in">Run</span> status<span class="hljs-built_in"> group </span>0 (all jobs):<br>   READ: <span class="hljs-attribute">bw</span>=2944MiB/s (3087MB/s), 2944MiB/s-2944MiB/s (3087MB/s-3087MB/s), <span class="hljs-attribute">io</span>=28.8GiB (30.9GB), <span class="hljs-attribute">run</span>=10001-10001msec<br></code></pre></td></tr></table></figure>
+<h2 id="六zns性能测试">六、ZNS性能测试</h2>
+<p>SPDK FIO 插件支持 ZNS SSD 性能测试。详情请参考<a target="_blank" rel="noopener" href="https://github.com/spdk/spdk/blob/master/app/fio/bdev/README.md">ZNS性能测试</a>。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/SPDK/" class="category-chain-item">SPDK</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/SPDK/" class="print-no-link">#SPDK</a>
+      
+        <a href="/tags/FIO/" class="print-no-link">#FIO</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>使用FIO测试SPDK性能</div>
+      <div>https://ci-tz.github.io/2024/03/04/使用FIO测试SPDK性能/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>次天钊</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年3月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/03/10/SPDK-NVMe-API/" title="SPDK NVMe API">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SPDK NVMe API</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/02/12/11-RAII-and-smart-pointer/" title="11.RAII and smart pointer">
+                        <span class="hidden-mobile">11.RAII and smart pointer</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

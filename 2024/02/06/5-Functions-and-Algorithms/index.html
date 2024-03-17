@@ -1,0 +1,883 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/blog.png">
+  <link rel="icon" href="/img/blog.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="次天钊">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="概念提升 在上个笔记中，countOccurences函数还有最后一个问题没有解决：统计向量后半部分中最多有多少元素小于或等于5。这一问题可以使用谓词函数来解决。 谓词函数是一种特殊类型的函数，它接受一定数量的参数，并基于这些参数返回一个布尔值。这种函数特别适用于算法中的条件判断，能够增加代码的可复用性和灵活性。 示例：谓词函数的类型  单参数谓词（Unary Predicate）：接受单一参数，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="5.Functions and Algorithms">
+<meta property="og:url" content="https://ci-tz.github.io/2024/02/06/5-Functions-and-Algorithms/index.html">
+<meta property="og:site_name" content="Stack">
+<meta property="og:description" content="概念提升 在上个笔记中，countOccurences函数还有最后一个问题没有解决：统计向量后半部分中最多有多少元素小于或等于5。这一问题可以使用谓词函数来解决。 谓词函数是一种特殊类型的函数，它接受一定数量的参数，并基于这些参数返回一个布尔值。这种函数特别适用于算法中的条件判断，能够增加代码的可复用性和灵活性。 示例：谓词函数的类型  单参数谓词（Unary Predicate）：接受单一参数，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/06/5-Functions-and-Algorithms/image-20240205232016215.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/06/5-Functions-and-Algorithms/image-20240205232105347.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/06/5-Functions-and-Algorithms/image-20240205232219244.png">
+<meta property="article:published_time" content="2024-02-05T16:21:12.000Z">
+<meta property="article:modified_time" content="2024-03-17T09:32:36.175Z">
+<meta property="article:author" content="次天钊">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="Functions">
+<meta property="article:tag" content="Algorithms">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ci-tz.github.io/2024/02/06/5-Functions-and-Algorithms/image-20240205232016215.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>5.Functions and Algorithms - Stack</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ci-tz.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Stack Never Flow</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="5.Functions and Algorithms"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-02-06 00:21" pubdate>
+          2024年2月6日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          27 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">5.Functions and Algorithms</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="概念提升">概念提升</h2>
+<p>在上个笔记中，<code>countOccurences</code>函数还有最后一个问题没有解决：统计向量后半部分中最多有多少元素小于或等于5。这一问题可以使用<strong>谓词函数</strong>来解决。</p>
+<p>谓词函数是一种特殊类型的函数，它接受一定数量的参数，并基于这些参数返回一个布尔值。这种函数特别适用于算法中的条件判断，能够增加代码的可复用性和灵活性。</p>
+<p><strong>示例：谓词函数的类型</strong></p>
+<ul>
+<li>单参数谓词（Unary Predicate）：接受单一参数，返回布尔值。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 判断是否等于3</span><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">isEqualTo3</span><span class="hljs-params">(<span class="hljs-type">int</span> val)</span> </span>&#123; <br>    <span class="hljs-keyword">return</span> val == <span class="hljs-number">3</span>; <br>&#125;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>双参数谓词（Binary Predicate）：接受两个参数，返回布尔值。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 判断第一个参数是否可被第二个参数整除</span><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">isDivisibleBy</span><span class="hljs-params">(<span class="hljs-type">int</span> dividend, <span class="hljs-type">int</span> divisor)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> dividend % divisor == <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>应用于<code>countOccurences</code>函数</strong></p>
+<p>通过将固定条件（如等于某个值）替换为谓词函数，我们可以将<code>countOccurences</code>函数改造为更加通用和灵活的版本。</p>
+<p><strong>原始版本</strong>：统计元素等于给定值的次数。</p>
+<p><strong>改进版本</strong>：统计满足任意谓词条件的元素次数。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> InputIt, <span class="hljs-keyword">typename</span> UniPred&gt;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">countOccurences</span><span class="hljs-params">(InputIt begin, InputIt end, UniPred predicate)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> count = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span> iter = begin; iter != end; ++iter) &#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">predicate</span>(*iter))<br>            ++count;<br>    &#125;<br>    <span class="hljs-keyword">return</span> count;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>实际应用</strong>：解决“统计向量后半部分中最多有多少元素小于或等于5”的问题。</p>
+<ul>
+<li>首先定义一个适当的谓词函数：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">isLessThanOrEqualTo5</span><span class="hljs-params">(<span class="hljs-type">int</span> val)</span> </span>&#123; <br>    <span class="hljs-keyword">return</span> val &lt;= <span class="hljs-number">5</span>; <br>&#125;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>然后应用改进版的<code>countOccurences</code>函数：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c++">std::vector&lt;<span class="hljs-type">int</span>&gt; vec = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">7</span>, <span class="hljs-number">9</span>&#125;;<br><span class="hljs-keyword">auto</span> mid = vec.<span class="hljs-built_in">begin</span>() + vec.<span class="hljs-built_in">size</span>() / <span class="hljs-number">2</span>; <span class="hljs-comment">// 计算中点</span><br><span class="hljs-type">int</span> count = <span class="hljs-built_in">countOccurences</span>(mid, vec.<span class="hljs-built_in">end</span>(), isLessThanOrEqualTo5);<br></code></pre></td></tr></table></figure>
+<h2 id="lambda表达式">lambda表达式</h2>
+<p>如果我们想让谓词函数更加通用，比如可以判断元素是否小于<strong>任意值</strong>，一种错误的写法如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">isLessThanLimit</span><span class="hljs-params">(<span class="hljs-type">int</span> val)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> val &lt; limit;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    vector&lt;<span class="hljs-type">int</span>&gt; vec&#123;<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">7</span>, <span class="hljs-number">9</span>&#125;;<br>    <span class="hljs-type">int</span> limit = <span class="hljs-number">8</span>;<br>    <br>    <span class="hljs-built_in">countOccurences</span>(vec.<span class="hljs-built_in">begin</span>(), vec.<span class="hljs-built_in">end</span>(), isLessThanLimit);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在上面的示例中，<code>isLessThanLimit</code>函数内的<code>limit</code>变量并不在其能访问的作用域。<strong>作用域</strong>阻碍谓词函数变得更通用。<strong>lambda 表达式</strong>则可以解决这一问题。</p>
+<p>Lambda表达式允许你在需要函数对象的地方编写<strong>内联、匿名的函数体</strong>。这特别适用于定义<strong>短暂使用</strong>的自定义操作，如STL算法中的<strong>谓词函数</strong>。Lambda表达式可以捕获作用域中的变量，使其在函数体内可用，从而提高了代码的灵活性和表达力。</p>
+<p><strong>示例：使用Lambda表达式比较元素</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 优化后的countOccurences函数</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> InputIt, <span class="hljs-keyword">typename</span> UniPred&gt;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">countOccurences</span><span class="hljs-params">(InputIt begin, InputIt end, UniPred predicate)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> count = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span> iter = begin; iter != end; ++iter) &#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">predicate</span>(*iter)) &#123;<br>            ++count;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> count;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::vector&lt;<span class="hljs-type">int</span>&gt; vec = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">7</span>, <span class="hljs-number">9</span>&#125;;<br>    <span class="hljs-type">int</span> limit = <span class="hljs-number">5</span>;<br><br>    <span class="hljs-comment">// 使用lambda表达式作为谓词函数</span><br>    <span class="hljs-keyword">auto</span> isLessThanLimit = [limit](<span class="hljs-keyword">auto</span> val) -&gt; <span class="hljs-type">bool</span> &#123;<br>        <span class="hljs-keyword">return</span> val &lt; limit;<br>    &#125;;<br><br>    <span class="hljs-type">int</span> result = <span class="hljs-built_in">countOccurences</span>(vec.<span class="hljs-built_in">begin</span>(), vec.<span class="hljs-built_in">end</span>(), isLessThanLimit);<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Elements less than &quot;</span> &lt;&lt; limit &lt;&lt; <span class="hljs-string">&quot;: &quot;</span> &lt;&lt; result &lt;&lt; std::endl;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<h4 id="lambda表达式的优势">Lambda表达式的优势</h4>
+<ul>
+<li><strong>简洁性</strong>：Lambda表达式简化了代码，使其更加紧凑，尤其是当定义简短的函数时。</li>
+<li><strong>灵活性</strong>：通过捕获列表，Lambda表达式可以访问函数外部的变量，无需通过参数传递。</li>
+<li><strong>直观性</strong>：Lambda直接在需要的地方定义，提高了代码的可读性和理解度。</li>
+</ul>
+</blockquote>
+<p><code>isLessThanLimit</code>的详细解释：</p>
+<p><img src="image-20240205232016215.png" srcset="/img/loading.gif" lazyload /></p>
+<p><img src="image-20240205232105347.png" srcset="/img/loading.gif" lazyload /></p>
+<p><img src="image-20240205232219244.png" srcset="/img/loading.gif" lazyload /></p>
+<h3 id="stdfunction">std::function</h3>
+<p><code>std::function</code> 是一个通用的函数封装器，用于存储和调用任何类型的可调用对象，如函数指针、Lambda表达式、或其他函数对象。</p>
+<p>使用 <code>std::function&lt;R(Args...)&gt;</code>，你可以创建一个变量，该变量能够存储并调用返回类型为 <code>R</code>、接受参数类型为 <code>Args...</code> 的任何可调用对象。</p>
+<p><strong>示例</strong></p>
+<p>封装普通函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs C++">/ 定义一个简单的加法函数<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;<br><br><span class="hljs-comment">// 使用std::function封装一个函数指针</span><br>std::function&lt;<span class="hljs-type">int</span>(<span class="hljs-type">int</span>, <span class="hljs-type">int</span>)&gt; addFunc = add;<br><br><span class="hljs-comment">// 使用std::function封装一个Lambda表达式</span><br>std::function&lt;<span class="hljs-type">bool</span>(<span class="hljs-type">int</span>)&gt; isPositive = [](<span class="hljs-type">int</span> val) &#123; <span class="hljs-keyword">return</span> val &gt; <span class="hljs-number">0</span>; &#125;;<br><br><span class="hljs-comment">// 通过封装器调用函数</span><br><span class="hljs-type">int</span> result = <span class="hljs-built_in">func</span>(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>);<br></code></pre></td></tr></table></figure>
+<h3 id="stdbind">std::bind</h3>
+<p><code>std::bind</code> 允许调整函数参数的顺序，绑定一些参数为固定值，或者将成员函数绑定到对象实例上。它可以用来适配函数接口，使其满足特定的调用要求。</p>
+<p><strong>示例</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">auto</span> boundFunc = std::<span class="hljs-built_in">bind</span>(add, std::placeholders::_1, <span class="hljs-number">5</span>);<br><span class="hljs-type">int</span> result = <span class="hljs-built_in">boundFunc</span>(<span class="hljs-number">10</span>); <span class="hljs-comment">// 等价于调用add(10, 5)</span><br></code></pre></td></tr></table></figure>
+<p><code>std::bind</code> 的使用已经由C++11后的Lambda表达式大部分取代，因为Lambda提供了更加灵活和直观的方式来实现相同的功能。</p>
+<h2 id="算法命名规范">算法命名规范</h2>
+<p>C++ STL中的算法命名遵循特定的规范，以便于理解它们的功能和用法。这些命名规范包括后缀<code>_if</code>、<code>_copy</code>和<code>_n</code>，它们指示算法的特殊行为。</p>
+<h3 id="后缀为_if的算法">后缀为<code>_if</code>的算法</h3>
+<p>以<code>_if</code>结尾的算法（如<code>replace_if</code>、<code>count_if</code>等）要求传入一个谓词函数。这种类型的算法仅当元素满足谓词函数定义的条件时，才对元素执行指定操作。谓词函数接受一个元素作为参数，并返回一个布尔值，指示元素是否符合特定条件。</p>
+<p><strong>示例：<code>count</code>与<code>count_if</code></strong></p>
+<ul>
+<li><code>count</code>算法计算一个特定值在给定范围内出现的次数：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c++">std::vector&lt;<span class="hljs-type">int</span>&gt; myVec = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">137</span>, <span class="hljs-number">42</span>, <span class="hljs-number">137</span>, <span class="hljs-number">58</span>&#125;;<br>std::cout &lt;&lt; std::<span class="hljs-built_in">count</span>(myVec.<span class="hljs-built_in">begin</span>(), myVec.<span class="hljs-built_in">end</span>(), <span class="hljs-number">137</span>) &lt;&lt; std::endl;<br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>count_if</code>算法根据谓词函数的条件，计算给定范围内元素满足条件的次数。例如，确定<code>vector&lt;int&gt;</code>中偶数的数量：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">IsEven</span><span class="hljs-params">(<span class="hljs-type">int</span> value)</span> </span>&#123; <br>    <span class="hljs-keyword">return</span> value % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>; <br>&#125;<br><br>std::vector&lt;<span class="hljs-type">int</span>&gt; myVec = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;;<br>std::cout &lt;&lt; std::<span class="hljs-built_in">count_if</span>(myVec.<span class="hljs-built_in">begin</span>(), myVec.<span class="hljs-built_in">end</span>(), IsEven) &lt;&lt; std::endl;<br></code></pre></td></tr></table></figure>
+<h3 id="含copy的算法">含<code>copy</code>的算法</h3>
+<p>包含<code>copy</code>字样的算法（如<code>remove_copy</code>、<code>partial_sort_copy</code>等）执行特定任务，并将结果复制到另一个容器。这类算法不修改原始数据，而是将变更后的数据集复制到新的位置。</p>
+<h3 id="以_n结尾的算法">以<code>_n</code>结尾的算法</h3>
+<p>以<code>_n</code>结尾的算法（如<code>generate_n</code>、<code>search_n</code>等）执行操作固定次数。这些算法通常需要一个起始迭代器和一个次数参数，表明操作执行的次数。</p>
+<p><strong>示例：<code>fill</code>与<code>fill_n</code></strong></p>
+<ul>
+<li><code>fill</code>算法将一个范围内的所有元素设置为指定值：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function">std::deque&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">myDeque</span><span class="hljs-params">(<span class="hljs-number">5</span>)</span></span>;<br>std::<span class="hljs-built_in">fill</span>(myDeque.<span class="hljs-built_in">begin</span>(), myDeque.<span class="hljs-built_in">end</span>(), <span class="hljs-number">0</span>);<br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>fill_n</code>算法从给定起始位置开始，将指定数量的元素设置为某个值：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++">std::<span class="hljs-built_in">fill_n</span>(myDeque.<span class="hljs-built_in">begin</span>(), <span class="hljs-number">3</span>, <span class="hljs-number">10</span>);<br></code></pre></td></tr></table></figure>
+<h2 id="std-算法简介">std 算法简介</h2>
+<h3 id="重排序算法">重排序算法</h3>
+<p><strong>排序（sort）：</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-built_in">sort</span>(myVector.<span class="hljs-built_in">begin</span>(), myVector.<span class="hljs-built_in">end</span>()); <span class="hljs-comment">// 按升序排序范围内的元素</span><br></code></pre></td></tr></table></figure>
+<p><code>sort</code>函数要求传入的迭代器类型为随机访问迭代器，因此它不能用于对<code>map</code>或<code>set</code>这样的容器进行排序。</p>
+<p>默认情况下，<code>sort</code>使用<code>&lt;</code>运算符对元素进行排序，但也可以指定一个自定义的比较函数或重载<code>&lt;</code>运算符来改变排序规则。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">placeT</span> &#123; <br>    <span class="hljs-type">int</span> x; <br>    <span class="hljs-type">int</span> y; <br>&#125;;<br><br>vector&lt;placeT&gt; myPlaceVector;<br><br><span class="hljs-comment">// 注意：比较函数可以按值传参，也可以接受const引用。</span><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">ComparePlaces</span><span class="hljs-params">(placeT one, placeT two)</span> </span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (one.x != two.x)<br>        <span class="hljs-keyword">return</span> one.x &lt; two.x;<br>    <span class="hljs-keyword">return</span> one.y &lt; two.y;<br>&#125;<br><br><span class="hljs-built_in">sort</span>(myPlaceVector.<span class="hljs-built_in">begin</span>(), myPlaceVector.<span class="hljs-built_in">end</span>(), ComparePlaces);<br></code></pre></td></tr></table></figure>
+<p><strong>随机打乱（random_shuffle）：</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-built_in">random_shuffle</span>(myVector.<span class="hljs-built_in">begin</span>(), myVector.<span class="hljs-built_in">end</span>());<br></code></pre></td></tr></table></figure>
+<p><code>random_shuffle</code>内部使用内置的<code>rand()</code>函数生成随机数。因此，在使用<code>random_shuffle</code>之前，应该先使用<code>srand</code>函数对随机数生成器进行种子设置。</p>
+<p><strong>旋转（rotate）：</strong></p>
+<p>旋转容器中的元素。例如，对于给定的输入容器<code>(0,1,2,3,4,5)</code>，围绕位置3旋转容器将得到<code>(2,3,4,5,0,1)</code>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-comment">// 它接受三个迭代器，分别是范围的开始、新的起始位置和结束。</span><br><span class="hljs-built_in">rotate</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">begin</span>() + <span class="hljs-number">2</span>, v.<span class="hljs-built_in">end</span>());<br></code></pre></td></tr></table></figure>
+<h3 id="查找算法">查找算法</h3>
+<p><strong>find：</strong></p>
+<p><code>find</code>函数接收两个迭代器（定义一个范围）和一个值作为参数，返回一个指向范围内第一个等于该值的元素的迭代器。如果没有找到匹配的元素，<code>find</code>将返回第二个迭代器（即范围的末尾）。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-keyword">if</span> (<span class="hljs-built_in">find</span>(myVector.<span class="hljs-built_in">begin</span>(), myVector.<span class="hljs-built_in">end</span>(), <span class="hljs-number">137</span>) != myVector.<span class="hljs-built_in">end</span>()) &#123;<br>    <span class="hljs-comment">// 如果向量中包含137</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>binary_search</strong></p>
+<p>对于已排序的线性容器（如已排序的向量），可以使用<code>binary_search</code>算法快速搜索。该算法检查指定值是否存在于容器中，但不返回元素的迭代器。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-comment">// 假设myVector已经排序</span><br><span class="hljs-keyword">if</span> (<span class="hljs-built_in">binary_search</span>(myVector.<span class="hljs-built_in">begin</span>(), myVector.<span class="hljs-built_in">end</span>(), <span class="hljs-number">137</span>)) &#123;<br>    <span class="hljs-comment">// 找到了137</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>lower_bound</strong></p>
+<p><code>binary_search</code>只能用于检查元素是否存在，而<code>lower_bound</code>可用于获取具体元素位置的迭代器。</p>
+<p>如果你想要执行二分查找并获取指向某个元素的迭代器，应使用<code>lower_bound</code>算法。<code>lower_bound</code>返回一个指向第一个不小于（大于或等于）指定值的元素的迭代器。如果范围内不存在这样的元素，则<code>lower_bound</code>返回的迭代器可能会指向一个与所查找元素不同的值。</p>
+<h3 id="移除算法">移除算法</h3>
+<p><strong><code>remove</code> 和 <code>remove_if</code></strong></p>
+<p>C++标准库提供了<code>remove</code>和<code>remove_if</code>算法，用于从序列中移除元素。然而，这些算法并不直接从容器中删除元素；它们重新排列容器中的元素，将不需要删除的元素前移，然后返回新的逻辑序列结束的迭代器。实际的容器大小不变，被“移除”的元素仍在容器的末尾部分，只是不再是序列的一部分。</p>
+<p><strong>使用<code>remove</code></strong></p>
+<p><code>remove</code>算法移除所有等于指定值的元素。例如，从一个整数向量中移除所有的<code>3</code>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs C++">std::vector&lt;<span class="hljs-type">int</span>&gt; vec = &#123;<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;;<br><span class="hljs-keyword">auto</span> newEnd = std::<span class="hljs-built_in">remove</span>(vec.<span class="hljs-built_in">begin</span>(), vec.<span class="hljs-built_in">end</span>(), <span class="hljs-number">3</span>);<br><span class="hljs-comment">// vec现在可能是&#123;0, 1, 2, 4, x, x&#125;，其中x是未定义的值</span><br></code></pre></td></tr></table></figure>
+<p><strong>结合<code>erase</code>使用</strong></p>
+<p>为了从容器中彻底删除这些元素，需要配合使用容器的<code>erase</code>方法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c++">vec.<span class="hljs-built_in">erase</span>(newEnd, vec.<span class="hljs-built_in">end</span>());<br><span class="hljs-comment">// vec现在是&#123;0, 1, 2, 4&#125;</span><br></code></pre></td></tr></table></figure>
+<p><strong>使用<code>remove_if</code></strong></p>
+<p><code>remove_if</code>根据提供的谓词条件移除元素。这允许移除满足特定条件的所有元素，例如移除所有标点符号：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c++">std::string s = <span class="hljs-string">&quot;Hello, World!&quot;</span>;<br><span class="hljs-keyword">auto</span> newEnd = std::<span class="hljs-built_in">remove_if</span>(s.<span class="hljs-built_in">begin</span>(), s.<span class="hljs-built_in">end</span>(), ::ispunct);<br>s.<span class="hljs-built_in">erase</span>(newEnd, s.<span class="hljs-built_in">end</span>());<br><span class="hljs-comment">// s现在是&quot;Hello World&quot;</span><br></code></pre></td></tr></table></figure>
+<h2 id="迭代器适配器">迭代器适配器</h2>
+<p>迭代器适配器允许我们以灵活的方式操作容器或其他序列，解决了在复制操作等场合预先确定目标空间大小的难题。它们表现得像迭代器，支持解引用和递增操作，但并不直接对应容器中的具体元素位置。</p>
+<h3 id="插入迭代器">插入迭代器</h3>
+<p>插入迭代器（如<code>back_insert_iterator</code>）在写入操作时不是替换容器中的元素，而是在容器的末尾插入新元素。这对于动态增长的容器，如<code>std::vector</code>或<code>std::deque</code>，特别有用。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs C++">std::vector&lt;<span class="hljs-type">int</span>&gt; myVector;<br>std::back_insert_iterator&lt;std::vector&lt;<span class="hljs-type">int</span>&gt;&gt; <span class="hljs-built_in">back_itr</span>(myVector);<br><br><span class="hljs-comment">// 使用循环填充vector</span><br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; ++i) &#123;<br>    *back_itr = i;  <span class="hljs-comment">// 向myVector末尾插入值</span><br>    ++back_itr;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在算法中使用<code>std::back_inserter</code>可以简化代码，自动创建一个<code>back_insert_iterator</code>实例。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs C++">vector&lt;<span class="hljs-type">int</span>&gt; original = <span class="hljs-comment">/* ... */</span><br>vector&lt;<span class="hljs-type">int</span>&gt; destination;<br>std::<span class="hljs-built_in">reverse_copy</span>(original.<span class="hljs-built_in">begin</span>(), original.<span class="hljs-built_in">end</span>(), std::<span class="hljs-built_in">back_inserter</span>(destination));<br></code></pre></td></tr></table></figure>
+<h3 id="集合操作迭代器">集合操作迭代器</h3>
+<p>对于集合操作，如求并集、交集等，<code>std::inserter</code>在指定位置插入新元素，适用于<code>std::set</code>等不支持<code>push_back</code>的容器。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs C++">std::set&lt;<span class="hljs-type">int</span>&gt; setOne, setTwo, result;<br><span class="hljs-comment">// 填充setOne和setTwo</span><br>std::<span class="hljs-built_in">set_union</span>(setOne.<span class="hljs-built_in">begin</span>(), setOne.<span class="hljs-built_in">end</span>(), <br>               setTwo.<span class="hljs-built_in">begin</span>(), setTwo.<span class="hljs-built_in">end</span>(), <br>               std::<span class="hljs-built_in">inserter</span>(result, result.<span class="hljs-built_in">begin</span>()));<br></code></pre></td></tr></table></figure>
+<h3 id="ostream_iterator"><code>ostream_iterator</code></h3>
+<p><code>ostream_iterator</code>用于将输出操作关联到一个流（如标准输出<code>cout</code>或文件流<code>ofstream</code>），而不是直接操作容器中的元素。向<code>ostream_iterator</code>写入值时，这些值会被发送到关联的输出流。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-comment">// 将整数值写入cout，每个值后跟一个空格</span><br><span class="hljs-function">std::ostream_iterator&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">out_itr</span><span class="hljs-params">(std::cout, <span class="hljs-string">&quot; &quot;</span>)</span></span>;<br>*out_itr = <span class="hljs-number">137</span>;  <span class="hljs-comment">// 向cout打印 137</span><br>++out_itr;<br>*out_itr = <span class="hljs-number">42</span>;   <span class="hljs-comment">// 向cout打印 42</span><br></code></pre></td></tr></table></figure>
+<p>使用<code>std::copy</code>与<code>ostream_iterator</code>结合，可以简洁地将容器中的元素输出到标准输出或文件中。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs C++">std::vector&lt;<span class="hljs-type">int</span>&gt; myVector = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;;<br>std::<span class="hljs-built_in">copy</span>(myVector.<span class="hljs-built_in">begin</span>(), myVector.<span class="hljs-built_in">end</span>(), std::<span class="hljs-built_in">ostream_iterator</span>&lt;<span class="hljs-type">int</span>&gt;(std::cout, <span class="hljs-string">&quot; &quot;</span>));<br></code></pre></td></tr></table></figure>
+<h3 id="istream_iterator"><code>istream_iterator</code></h3>
+<p><code>istream_iterator</code>允许从输入流（如标准输入或文件流）读取值，将流视为元素序列。特殊的<code>istream_iterator</code>实例表示流的末尾。</p>
+<p>例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-function">std::istream_iterator&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">start</span><span class="hljs-params">(std::cin)</span>, end</span>; <span class="hljs-comment">// start从cin读取int，end表示流末尾</span><br><span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">values</span><span class="hljs-params">(start, end)</span></span>; <span class="hljs-comment">// 从cin读取整数直到遇到非整数或EOF</span><br></code></pre></td></tr></table></figure>
+<p>这种方式极大简化了从标准输入或文件中读取数据到容器的过程。</p>
+<h2 id="练习">练习：</h2>
+<p>实现一个高效通用的<code>remove_if</code>算法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> ForwardIt, <span class="hljs-keyword">typename</span> UniPred&gt;<br><span class="hljs-function">ForwardIt <span class="hljs-title">remove_if</span><span class="hljs-params">(ForwardIt first, ForwardIt last, UniPred pred)</span></span><br><span class="hljs-function"></span>&#123;<br>    ForwardIt result = first;  <span class="hljs-comment">// 用于记录满足条件的元素的位置</span><br><br>    <span class="hljs-comment">// 遍历范围 [first, last)</span><br>    <span class="hljs-keyword">for</span> (ForwardIt it = first; it != last; ++it) &#123;<br>        <span class="hljs-comment">// 如果当前元素满足条件，跳过它</span><br>        <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">pred</span>(*it)) &#123;<br>            *result = std::<span class="hljs-built_in">move</span>(*it);  <span class="hljs-comment">// 移动元素到满足条件的位置</span><br>            ++result;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/Functions/" class="print-no-link">#Functions</a>
+      
+        <a href="/tags/Algorithms/" class="print-no-link">#Algorithms</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>5.Functions and Algorithms</div>
+      <div>https://ci-tz.github.io/2024/02/06/5-Functions-and-Algorithms/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>次天钊</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年2月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/02/08/6-Introduction-to-Class/" title="6.Introduction to Class">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">6.Introduction to Class</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/02/05/4-Template-Function/" title="4.Template Function">
+                        <span class="hidden-mobile">4.Template Function</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

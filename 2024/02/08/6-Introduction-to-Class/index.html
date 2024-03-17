@@ -1,0 +1,948 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/blog.png">
+  <link rel="icon" href="/img/blog.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="次天钊">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、Classes简介  头文件（.h）VS 源码（.cpp） 构造函数 析构函数 操作符重载 const  1.1 头文件(.h)  1.2 源码(.cpp, .cc, etc.)  1.3 构造函数  构造函数可分为带参数和不带参数两种类型，其调用方式示例如下： 12FMRadio myRadio(88.5, 5); &#x2F;&#x2F; 使用带参数的构造函数创建对象FMRadio myRadio;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="6.Introduction to Class">
+<meta property="og:url" content="https://ci-tz.github.io/2024/02/08/6-Introduction-to-Class/index.html">
+<meta property="og:site_name" content="Stack">
+<meta property="og:description" content="一、Classes简介  头文件（.h）VS 源码（.cpp） 构造函数 析构函数 操作符重载 const  1.1 头文件(.h)  1.2 源码(.cpp, .cc, etc.)  1.3 构造函数  构造函数可分为带参数和不带参数两种类型，其调用方式示例如下： 12FMRadio myRadio(88.5, 5); &#x2F;&#x2F; 使用带参数的构造函数创建对象FMRadio myRadio;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/08/6-Introduction-to-Class/image-20240208163200168.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/08/6-Introduction-to-Class/image-20240208163214944.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/08/6-Introduction-to-Class/image-20240208163230536.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/08/6-Introduction-to-Class/image-20240208163548686.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/08/6-Introduction-to-Class/image-20240208163604114.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/08/6-Introduction-to-Class/image-20240208170034673.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/08/6-Introduction-to-Class/image.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/08/6-Introduction-to-Class/image-1.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/08/6-Introduction-to-Class/image-2.png">
+<meta property="article:published_time" content="2024-02-08T09:26:43.000Z">
+<meta property="article:modified_time" content="2024-03-17T09:32:36.179Z">
+<meta property="article:author" content="次天钊">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="Class">
+<meta property="article:tag" content="Const">
+<meta property="article:tag" content="Static">
+<meta property="article:tag" content="Cast">
+<meta property="article:tag" content="Initialization">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ci-tz.github.io/2024/02/08/6-Introduction-to-Class/image-20240208163200168.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>6.Introduction to Class - Stack</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ci-tz.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Stack Never Flow</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="6.Introduction to Class"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-02-08 17:26" pubdate>
+          2024年2月8日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          32 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">6.Introduction to Class</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="一classes简介">一、Classes简介</h2>
+<ul>
+<li>头文件（.h）VS 源码（.cpp）</li>
+<li>构造函数</li>
+<li>析构函数</li>
+<li>操作符重载</li>
+<li>const</li>
+</ul>
+<h3 id="头文件.h">1.1 头文件(.h)</h3>
+<p><img src="image-20240208163200168.png" srcset="/img/loading.gif" lazyload /></p>
+<h3 id="源码.cpp-.cc-etc.">1.2 源码(.cpp, .cc, etc.)</h3>
+<p><img src="image-20240208163214944.png" srcset="/img/loading.gif" lazyload /></p>
+<h3 id="构造函数">1.3 构造函数</h3>
+<p><img src="image-20240208163230536.png" srcset="/img/loading.gif" lazyload /></p>
+<p>构造函数可分为带参数和不带参数两种类型，其调用方式示例如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-function">FMRadio <span class="hljs-title">myRadio</span><span class="hljs-params">(<span class="hljs-number">88.5</span>, <span class="hljs-number">5</span>)</span></span>; <span class="hljs-comment">// 使用带参数的构造函数创建对象</span><br>FMRadio myRadio;          <span class="hljs-comment">// 使用不带参数的构造函数创建对象</span><br></code></pre></td></tr></table></figure>
+<p>但是，使用下列代码并不能正确调用不带参数的构造函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-function">FMRadio <span class="hljs-title">myRadio</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">// 问题：这会被误解为一个函数声明</span><br></code></pre></td></tr></table></figure>
+<p>该语句被编译器解释为一个函数声明，而非使用默认构造函数实例化对象。为了调用默认构造函数，应直接使用对象名而不加任何括号；若需调用带参数的构造函数，则需在括号内指定参数。</p>
+<p><strong>关于默认构造函数</strong></p>
+<p>当一个类被定义但未显式声明任何构造函数时，C++会自动生成一个默认无参构造函数，这个构造函数基本上不执行任何操作。</p>
+<p>但是，一旦在类中定义了至少一个构造函数（无论是带参数还是不带参数的），C++将不再自动生成默认的无参构造函数。这可能导致在未明确定义无参构造函数的情况下尝试实例化类时遇到问题，如下例所示：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">FMRadio</span> &#123; <br>    <span class="hljs-keyword">public</span>: <br>        <span class="hljs-built_in">FMRadio</span>(<span class="hljs-type">double</span> freq, <span class="hljs-type">int</span> vol); <span class="hljs-comment">// 自定义带参数构造函数</span><br>        <span class="hljs-comment">// ...</span><br>&#125;;<br><br>FMRadio myRadio; <span class="hljs-comment">// 问题：类未定义默认无参构造函数，此行代码会引发错误</span><br></code></pre></td></tr></table></figure>
+<p>在这种情况下，若需要使用无参构造函数，必须自行定义之，或确保使用已定义的带参数构造函数进行对象的初始化。</p>
+<h3 id="析构函数">1.4 析构函数</h3>
+<p><img src="image-20240208163548686.png" srcset="/img/loading.gif" lazyload /></p>
+<h3 id="操作符重载">1.5 操作符重载</h3>
+<p><img src="image-20240208163604114.png" srcset="/img/loading.gif" lazyload /></p>
+<h2 id="二const-correctness">二、Const Correctness</h2>
+<h3 id="const-member-functions">2.1 Const Member Functions</h3>
+<ul>
+<li>类通常包含const和非const成员函数。const对象仅可调用const成员函数。</li>
+<li>在const成员函数内，类的所有成员变量都被视作const，允许读取但禁止修改。</li>
+<li>const成员函数不能调用非const成员函数，以防止间接修改对象状态。</li>
+</ul>
+<p><strong>示例：定义Point类的const成员函数</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Point</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Point</span>(<span class="hljs-type">double</span> x, <span class="hljs-type">double</span> y); <span class="hljs-comment">// 构造函数</span><br>    <span class="hljs-function"><span class="hljs-type">double</span> <span class="hljs-title">getX</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span>; <span class="hljs-comment">// const成员函数，不修改任何成员变量</span><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">double</span> x, y;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">double</span> <span class="hljs-title">Point::getX</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> x; <span class="hljs-comment">// 仅返回成员变量x的值</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="const-references">2.2 Const References</h3>
+<ul>
+<li>使用const引用作为函数参数可以防止该函数修改传入的对象。</li>
+<li>即使传递给函数的原始对象不是const，函数内部也会将其视为const，确保对象内容的不可变性。</li>
+<li>可以将非const对象传递给接受const引用的函数，但不能将const对象传递给仅接受非const引用的函数，因为这违反了const的约束。</li>
+</ul>
+<p><strong>示例：使用const引用作参数的函数</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">PrintVector</span><span class="hljs-params">(<span class="hljs-type">const</span> vector&lt;<span class="hljs-type">int</span>&gt;&amp; vec)</span> </span>&#123;<br>    <span class="hljs-comment">// 在这里，vec被视为const，因此不能对其进行修改</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>这种设计允许既可以传递const对象也可以传递非const对象到函数<code>PrintVector</code>，但在函数内部，vec始终被视作const，保障了数据的安全性和不变性。</li>
+<li>采用const引用作为参数的做法不仅可以提高程序的安全性，还可以避免不必要的对象复制，提高效率。</li>
+</ul>
+<h3 id="const-and-pointers">2.3 Const and Pointers</h3>
+<p>在C++中，const和指针结合使用时，主要涉及两种情形：<strong>指向常量的指针</strong>（pointer-to-const）和<strong>常量指针</strong>（const pointer）。</p>
+<ul>
+<li><strong>指向常量的指针（pointer-to-const）</strong>：这种指针可以指向一个常量数据，不允许通过指针修改其指向的数据，但允许指针本身改变，即可以指向另一块数据。
+<ul>
+<li>声明方式：<code>const Type* myPointer</code> 或 <code>Type const* myPointer</code>。</li>
+<li><strong>关键点</strong>：指针可以重新指向不同的地址，但不能通过指针修改所指向的值。</li>
+</ul></li>
+<li><strong>常量指针（const pointer）</strong>：这种指针的指向一旦设定就不可改变，但它指向的数据值是可以修改的（除非指向的数据本身被声明为const）。
+<ul>
+<li>声明方式：<code>Type* const myConstPointer</code>。</li>
+<li><strong>关键点</strong>：指针的指向固定不变，但所指向的数据可以修改。</li>
+</ul></li>
+</ul>
+<p>区分这两者的简单方法是观察<code>const</code>关键字与<code>*</code>符号的位置关系：</p>
+<ul>
+<li><strong>指向常量的指针</strong>：<code>const</code>位于<code>*</code>的左侧。</li>
+<li><strong>常量指针</strong>：<code>const</code>位于<code>*</code>的右侧。</li>
+</ul>
+<p>技巧：从右向左读变量声明可以帮助记忆：</p>
+<ul>
+<li><code>const int* ptr</code>：从右向左读为 <strong>"ptr is a pointer to a int that is const"</strong>。</li>
+<li><code>int * const ptr</code>：从右向左读为 <strong>"ptr is a const pointer to a int"</strong>。</li>
+</ul>
+<p>指向常量的指针既可以指向const变量，也可以指向非const变量；而常量指针则主要关注指针本身的不变性，而非所指数据的不变性。</p>
+<p>总结：</p>
+<p><img src="image-20240208170034673.png" srcset="/img/loading.gif" lazyload /></p>
+<h3 id="const-iterators">2.4 Const Iterators</h3>
+<p>迭代器在C++中被广泛用于遍历容器元素，其用法和行为与指针非常相似。然而，迭代器与指针在const性质上的表现有所不同。</p>
+<ul>
+<li><strong>迭代器的const性质：</strong>
+<ul>
+<li>声明为<code>const vector&lt;int&gt;::iterator itr</code>的迭代器，其行为类似于常量指针<code>int* const itr</code>，而不是指向常量的指针<code>const int* itr</code>。这意味着你可以修改迭代器指向的值，但不能改变迭代器本身的指向。</li>
+<li>要创建一个只能读取元素但不能修改它们的迭代器（类似于<code>const int* itr</code>），应使用<code>const_iterator</code>。</li>
+</ul></li>
+</ul>
+<p><strong>示例说明</strong>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c++">vector&lt;<span class="hljs-type">int</span>&gt; v&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2312</span>&#125;;<br><span class="hljs-type">const</span> vector&lt;<span class="hljs-type">int</span>&gt;::iterator itr = v.<span class="hljs-built_in">begin</span>(); <span class="hljs-comment">// itr的指向不可变，但可以修改其指向的元素</span><br>*itr = <span class="hljs-number">5</span>; <span class="hljs-comment">// 正确：可以修改itr指向的元素</span><br>++itr; <span class="hljs-comment">// 错误：itr是const，不能改变指向</span><br><br>vector&lt;<span class="hljs-type">int</span>&gt;::const_iterator citr = v.<span class="hljs-built_in">begin</span>(); <span class="hljs-comment">// citr可以改变指向，但不可以修改其指向的元素</span><br>*citr = <span class="hljs-number">5</span>; <span class="hljs-comment">// 错误：citr指向的元素不可修改</span><br>++citr; <span class="hljs-comment">// 正确：可以改变citr的指向</span><br><span class="hljs-type">int</span> value = *citr; <span class="hljs-comment">// 正确：可以读取citr指向的元素</span><br></code></pre></td></tr></table></figure>
+<ul>
+<li>对于const对象或const引用的容器，应使用<code>const_iterator</code>来遍历其元素，以确保遍历过程中不会意外修改容器内容。</li>
+<li><code>const_iterator</code>的支持是通过容器类中const重载的<code>begin()</code>和<code>end()</code>方法实现的，这些方法在容器对象为const时返回<code>const_iterator</code>，确保了只读访问。</li>
+</ul>
+<p><strong>容器类的const_iterator实现</strong>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt; <span class="hljs-keyword">class</span> <span class="hljs-title class_">vector</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 返回可修改元素的迭代器</span><br>    <span class="hljs-function">iterator <span class="hljs-title">begin</span><span class="hljs-params">()</span></span>;<br>    <span class="hljs-function">iterator <span class="hljs-title">end</span><span class="hljs-params">()</span></span>;<br>    <br>    <span class="hljs-comment">// 返回只读迭代器，用于const对象</span><br>    <span class="hljs-function">const_iterator <span class="hljs-title">begin</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span>;<br>    <span class="hljs-function">const_iterator <span class="hljs-title">end</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span>;<br>    <span class="hljs-comment">// ...其他成员函数...</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>通过这种方式，C++为容器元素的遍历提供了灵活的读写控制，同时确保了代码的安全性和可维护性。</p>
+<h3 id="mutable关键字">2.5 Mutable关键字</h3>
+<p>在C++中，<code>const</code>成员函数表明该函数不会修改对象的任何成员变量。然而，有些情况下，我们可能需要在<code>const</code>成员函数内部修改某些成员变量的状态。这时，<code>mutable</code>关键字就派上用场了。</p>
+<p>使用<code>mutable</code>声明的成员变量可以在对象的<code>const</code>成员函数中被修改。这允许开发者在不破坏对象外部不可变承诺的前提下，灵活处理内部状态。</p>
+<p>考虑一个需要缓存昂贵计算结果的类<code>CachedData</code>。为了在对象被声明为<code>const</code>时仍然能更新缓存，我们可以将缓存相关的成员变量声明为<code>mutable</code>。</p>
+<p><strong>示例</strong>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">CachedData</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">CachedData</span>() : <span class="hljs-built_in">value</span>(<span class="hljs-number">0</span>), <span class="hljs-built_in">cacheValue</span>(<span class="hljs-number">0</span>), <span class="hljs-built_in">cacheValid</span>(<span class="hljs-literal">false</span>) &#123;&#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">compute</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123; <span class="hljs-comment">// 假设为const成员函数</span><br>        <span class="hljs-keyword">if</span> (!cacheValid) &#123;<br>            cacheValue = <span class="hljs-comment">/* expensive computation */</span> value; <span class="hljs-comment">// 计算并缓存结果</span><br>            cacheValid = <span class="hljs-literal">true</span>; <span class="hljs-comment">// 标记缓存为有效</span><br>        &#125;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">getValue</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123; <span class="hljs-keyword">return</span> cacheValue; &#125; <span class="hljs-comment">// 返回缓存值</span><br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> value; <span class="hljs-comment">// 原始数据</span><br>    <span class="hljs-keyword">mutable</span> <span class="hljs-type">int</span> cacheValue; <span class="hljs-comment">// 可在const成员函数中修改的缓存值</span><br>    <span class="hljs-keyword">mutable</span> <span class="hljs-type">bool</span> cacheValid; <span class="hljs-comment">// 同上，标记缓存是否有效</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，尽管<code>CachedData</code>的实例可能被声明为<code>const</code>，<code>compute</code>方法仍可更新<code>cacheValue</code>和<code>cacheValid</code>。这是因为这两个成员变量被声明为<code>mutable</code>，从而使得我们能够在保持对象外观不变性的同时，提高内部处理效率和灵活性。</p>
+<h2 id="三构造函数成员初始化列表">三、构造函数：成员初始化列表</h2>
+<h3 id="c对象构造过程">3.1 C++对象构造过程</h3>
+<p>在C++中，对象的构造过程，如果不借助成员初始化列表，一般遵循以下步骤：</p>
+<ol type="1">
+<li><strong>内存分配</strong>：对象所需的内存空间被分配，此时成员变量尚未初始化，可能含有未定义的值。</li>
+<li><strong>默认构造</strong>：为成员变量调用默认构造函数。对于基本类型，这一步不改变其未定义的状态；对于类类型，调用其默认构造函数。</li>
+<li><strong>赋值操作</strong>：执行构造函数体中的赋值操作，对成员变量进行初始化。</li>
+</ol>
+<p>这个过程中，类类型的成员变量可能会经历两次初始化：首先是默认构造，随后是在构造函数体内的显式赋值。</p>
+<h3 id="不使用初始化列表的构造示例">3.2 不使用初始化列表的构造示例</h3>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">SimpleClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">SimpleClass</span>();<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> myInt;<br>    string myString;<br>    vector&lt;<span class="hljs-type">int</span>&gt; myVector;<br>&#125;;<br><br>SimpleClass::<span class="hljs-built_in">SimpleClass</span>() &#123;<br>    myInt = <span class="hljs-number">5</span>;<br>    myString = <span class="hljs-string">&quot;C++!&quot;</span>;<br>    myVector.<span class="hljs-built_in">resize</span>(<span class="hljs-number">10</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+<ol type="1">
+<li>获得足够的空间来容纳对象的所有数据成员。此时数据成员都为垃圾值：</li>
+</ol>
+<p><img src="image.png" srcset="/img/loading.gif" lazyload /></p>
+<ol start="2" type="1">
+<li>调用每个实例变量的默认构造函数。对于基本类型而言，依然保持垃圾值：</li>
+</ol>
+<p><img src="image-1.png" srcset="/img/loading.gif" lazyload /></p>
+<ol start="3" type="1">
+<li>调用构造函数来进行初始化：</li>
+</ol>
+<p><img src="image-2.png" srcset="/img/loading.gif" lazyload /></p>
+<p>在这个例子中，<code>myString</code>和<code>myVector</code>在被赋予新值前，已通过默认构造函数被初始化一次，导致效率降低。</p>
+<h3 id="使用成员初始化列表优化">3.3 使用成员初始化列表优化</h3>
+<p>使用成员初始化列表可以在构造对象时更加高效和直接地初始化成员变量，避免不必要的二次初始化。</p>
+<p><strong>改进后的构造函数</strong>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs C++">SimpleClass::<span class="hljs-built_in">SimpleClass</span>() : <span class="hljs-built_in">myInt</span>(<span class="hljs-number">5</span>), <span class="hljs-built_in">myString</span>(<span class="hljs-string">&quot;C++!&quot;</span>), <span class="hljs-built_in">myVector</span>(<span class="hljs-number">10</span>) &#123;<br>    <span class="hljs-comment">// 构造函数体现在可以为空</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>通过使用成员初始化列表：</p>
+<ul>
+<li>成员变量<code>myInt</code>、<code>myString</code>和<code>myVector</code>在构造函数体执行之前直接初始化为指定的值。</li>
+<li>提高了构造过程的效率，尤其是对于类类型成员变量而言，避免了不必要的默认构造和后续赋值步骤。</li>
+</ul>
+<h3 id="使用初始化列表的必要场景">3.4 使用初始化列表的必要场景</h3>
+<p>在C++中，某些情况下使用成员初始化列表不仅是提升效率的做法，而且是必须的。这主要包括以下两种情况：</p>
+<ol type="1">
+<li><strong>初始化const成员变量</strong></li>
+</ol>
+<p>const成员变量一旦被定义，就必须立即初始化，而且之后不能再被修改。因此，必须在构造函数的初始化列表中对它们进行初始化。如果试图在构造函数体内赋值给const成员变量，编译器会报错。</p>
+<p><strong>示例</strong>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Counter</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Counter</span>(<span class="hljs-type">int</span> maxValue);<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> value;<br>    <span class="hljs-type">const</span> <span class="hljs-type">int</span> maximum; <span class="hljs-comment">// const成员变量</span><br>&#125;;<br><br>Counter::<span class="hljs-built_in">Counter</span>(<span class="hljs-type">int</span> maxValue) : <span class="hljs-built_in">value</span>(<span class="hljs-number">0</span>), <span class="hljs-built_in">maximum</span>(maxValue) &#123;<br>    <span class="hljs-comment">// 构造函数体可以为空，因为所有必要的初始化已在列表中完成</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<ol start="2" type="1">
+<li><strong>初始化没有默认构造函数的类类型成员</strong></li>
+</ol>
+<p>如果类的成员是另一个类的对象，且该类没有提供无参的默认构造函数（或者你需要调用一个特定的构造函数来初始化该成员），那么你必须通过初始化列表来初始化这些成员变量。</p>
+<p><strong>示例</strong>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">ComplexObject</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">ComplexObject</span>(<span class="hljs-type">int</span> param1, <span class="hljs-type">double</span> param2);<br>    <span class="hljs-comment">// ...</span><br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">MyClass</span>(<span class="hljs-type">int</span> x) : <span class="hljs-built_in">complexObj</span>(x, <span class="hljs-number">3.14</span>) &#123;<br>        <span class="hljs-comment">// 构造函数体内可进行其他初始化操作</span><br>    &#125;<br><br><span class="hljs-keyword">private</span>:<br>    ComplexObject complexObj; <span class="hljs-comment">// 通过初始化列表调用特定构造函数</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>在这些场景中，成员初始化列表是初始化成员变量的唯一方法。它确保了即使在复杂场景下，对象的构造也能正确、高效地完成。</p>
+<h2 id="四使用static共享类信息">四、使用Static共享类信息</h2>
+<h3 id="静态数据成员-static-data-members">4.1 静态数据成员 (Static Data Members)</h3>
+<p>静态数据成员允许类的所有实例共享同一份数据。这意味着无论创建了多少个实例，静态成员只有一个副本。修改静态成员的状态将影响到所有实例。</p>
+<p><strong>声明和定义</strong>：</p>
+<ol type="1">
+<li><strong>声明</strong>：在类定义中声明静态成员，但不分配存储空间。</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">doSomething</span><span class="hljs-params">()</span></span>;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">int</span> myStaticData; <span class="hljs-comment">// 声明静态数据成员</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<ol start="2" type="1">
+<li><strong>定义</strong>：在类外部定义静态成员，并初始化其值。此步骤为静态成员分配存储空间。</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-type">int</span> MyClass::myStaticData = <span class="hljs-number">137</span>; <span class="hljs-comment">// 定义并初始化静态数据成员</span><br></code></pre></td></tr></table></figure>
+<p><strong>注意</strong>：定义时使用类的全限定名（<code>MyClass::myStaticData</code>），并省略<code>static</code>关键字。</p>
+<h3 id="静态成员函数">4.2 静态成员函数</h3>
+<p>静态成员函数不依赖于类的实例，因此没有<code>this</code>指针。它们只能访问静态数据成员和其他静态成员函数。</p>
+<p><strong>用法示例</strong>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Point</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Point</span>(<span class="hljs-type">int</span> xLoc, <span class="hljs-type">int</span> yLoc); <span class="hljs-comment">// 构造函数</span><br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title">compareTwoPoints</span><span class="hljs-params">(<span class="hljs-type">const</span> Point &amp;one, <span class="hljs-type">const</span> Point &amp;two)</span></span>;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> x, y; <span class="hljs-comment">// 实例变量</span><br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Point::compareTwoPoints</span><span class="hljs-params">(<span class="hljs-type">const</span> Point &amp;one, <span class="hljs-type">const</span> Point &amp;two)</span> </span>&#123;<br>    <span class="hljs-comment">// 静态成员函数实现</span><br>    <span class="hljs-keyword">return</span> one.x &lt; two.x || (one.x == two.x &amp;&amp; one.y &lt; two.y);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>静态成员函数可以通过类名直接调用：<code>Point::compareTwoPoints(a, b);</code>。</p>
+<h3 id="静态常量-static-const">4.3 静态常量 (static const)</h3>
+<p>静态常量成员在所有实例间共享同一常量值，通常用于定义类级别的常量。</p>
+<p><strong>声明和初始化</strong>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">ClassConstantExample</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 公开接口省略</span><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> MyConstant = <span class="hljs-number">137</span>; <span class="hljs-comment">// 声明并初始化静态常量</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>这种初始化方式主要适用于整型常量。对于非整型的静态常量（如<code>double</code>或<code>float</code>），你可能需要在类外部进行定义。</p>
+<h2 id="五-static_cast和const_cast">五、 <code>static_cast</code>和<code>const_cast</code></h2>
+<p>在C++中，经常需要为类成员函数提供<code>const</code>和非<code>const</code>版本，以支持不同的使用场景。</p>
+<p><code>std::vector</code>的<code>at()</code>函数就是一个典型例子，其中<code>const</code>版本返回元素的<code>const</code>引用，而非<code>const</code>版本则返回一个可修改的引用。为了减少代码冗余并保持逻辑一致性，可以利用<code>static_cast</code>和<code>const_cast</code>进行优雅的实现。</p>
+<h3 id="static_cast">5.1 <code>static_cast</code></h3>
+<ul>
+<li><strong>用途</strong>：<code>static_cast</code>主要用于基本数据类型之间的转换，以及相关类类型之间的向上和向下转换，但不涉及运行时类型检查。</li>
+<li><strong>特点</strong>：提供编译时类型安全检查，但不如<code>dynamic_cast</code>严格。</li>
+</ul>
+<h3 id="const_cast">5.2 <code>const_cast</code></h3>
+<ul>
+<li><strong>用途</strong>：<code>const_cast</code>专门用于修改类型的<code>const</code>或<code>volatile</code>属性，是实现<code>const</code>和非<code>const</code>成员函数共享实现的关键。</li>
+<li><strong>特点</strong>：能够添加或去除对象的<code>const</code>性质，但使用时需要谨慎以避免未定义行为。</li>
+</ul>
+<h3 id="示例">5.3 示例</h3>
+<p>假设有一个<code>Vector</code>类，我们希望共享<code>const</code>和非<code>const</code>版本的<code>at()</code>函数实现：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Vector</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">int</span>&amp; <span class="hljs-title">at</span><span class="hljs-params">(<span class="hljs-type">size_t</span> index)</span></span>; <span class="hljs-comment">// 非const版本声明</span><br>    <span class="hljs-function"><span class="hljs-type">const</span> <span class="hljs-type">int</span>&amp; <span class="hljs-title">at</span><span class="hljs-params">(<span class="hljs-type">size_t</span> index)</span> <span class="hljs-type">const</span></span>; <span class="hljs-comment">// const版本声明</span><br>&#125;;<br><br><span class="hljs-comment">// 非const版本的实现</span><br><span class="hljs-function"><span class="hljs-type">int</span>&amp; <span class="hljs-title">Vector::at</span><span class="hljs-params">(<span class="hljs-type">size_t</span> index)</span> </span>&#123;<br>    <span class="hljs-comment">// 首先将*this静态转换为const版本，然后调用const版本的at()</span><br>    <span class="hljs-comment">// 最后，使用const_cast去除返回值的const限定符</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">const_cast</span>&lt;<span class="hljs-type">int</span>&amp;&gt;(<span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">const</span> Vector*&gt;(<span class="hljs-keyword">this</span>)-&gt;<span class="hljs-built_in">at</span>(index));<br>&#125;<br><br><span class="hljs-comment">// const版本的实现</span><br><span class="hljs-function"><span class="hljs-type">const</span> <span class="hljs-type">int</span>&amp; <span class="hljs-title">Vector::at</span><span class="hljs-params">(<span class="hljs-type">size_t</span> index)</span> <span class="hljs-type">const</span> </span>&#123;<br>    <span class="hljs-comment">// 进行边界检查等逻辑</span><br>    <span class="hljs-keyword">if</span> (index &gt;= size) &#123;<br>        <span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">out_of_range</span>(<span class="hljs-string">&quot;Index out of range&quot;</span>);<br>    &#125;<br>    <span class="hljs-keyword">return</span> data[index];<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="六示例代码">六、示例代码</h2>
+<p><a href="/downloads/classes.zip">点击下载示例代码</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/Class/" class="print-no-link">#Class</a>
+      
+        <a href="/tags/Const/" class="print-no-link">#Const</a>
+      
+        <a href="/tags/Static/" class="print-no-link">#Static</a>
+      
+        <a href="/tags/Cast/" class="print-no-link">#Cast</a>
+      
+        <a href="/tags/Initialization/" class="print-no-link">#Initialization</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>6.Introduction to Class</div>
+      <div>https://ci-tz.github.io/2024/02/08/6-Introduction-to-Class/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>次天钊</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年2月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/02/11/7-Operator-Overloading/" title="7.Operator Overloading">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">7.Operator Overloading</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/02/06/5-Functions-and-Algorithms/" title="5.Functions and Algorithms">
+                        <span class="hidden-mobile">5.Functions and Algorithms</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

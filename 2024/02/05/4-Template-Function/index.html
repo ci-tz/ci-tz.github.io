@@ -1,0 +1,828 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/blog.png">
+  <link rel="icon" href="/img/blog.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="次天钊">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="模板函数 一个通用的比较大小的函数：  调用这一函数：  模板的显式实例化    隐式实例化     概念提升 在写模板函数时往往会对模板参数做出一定的假设，这些假设限制了所编写的模板函数的通用性。 尝试解除这些假设的限制，使得编写的模板的函数更通用。例如，对于countOccurences函数而言，能否解决以下问题：  以下展示逐渐放松countOccurences函数参数限制的过程： 1234">
+<meta property="og:type" content="article">
+<meta property="og:title" content="4.Template Function">
+<meta property="og:url" content="https://ci-tz.github.io/2024/02/05/4-Template-Function/index.html">
+<meta property="og:site_name" content="Stack">
+<meta property="og:description" content="模板函数 一个通用的比较大小的函数：  调用这一函数：  模板的显式实例化    隐式实例化     概念提升 在写模板函数时往往会对模板参数做出一定的假设，这些假设限制了所编写的模板函数的通用性。 尝试解除这些假设的限制，使得编写的模板的函数更通用。例如，对于countOccurences函数而言，能否解决以下问题：  以下展示逐渐放松countOccurences函数参数限制的过程： 1234">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/05/4-Template-Function/image-20240205174804348.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/05/4-Template-Function/image-20240205174828098.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/05/4-Template-Function/image-20240205174849968.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/05/4-Template-Function/image-20240205174908899.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/05/4-Template-Function/image-20240205174928361.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/05/4-Template-Function/image-20240205165453225.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/05/4-Template-Function/image-20240205165904004.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/05/4-Template-Function/image-20240205165941336.png">
+<meta property="og:image" content="https://ci-tz.github.io/2024/02/05/4-Template-Function/image-20240205171142915.png">
+<meta property="article:published_time" content="2024-02-05T09:37:35.000Z">
+<meta property="article:modified_time" content="2024-03-17T09:32:36.171Z">
+<meta property="article:author" content="次天钊">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="Templates">
+<meta property="article:tag" content="Function Template">
+<meta property="article:tag" content="SFINE">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ci-tz.github.io/2024/02/05/4-Template-Function/image-20240205174804348.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>4.Template Function - Stack</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ci-tz.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Stack Never Flow</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="4.Template Function"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-02-05 17:37" pubdate>
+          2024年2月5日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          9 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">4.Template Function</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="模板函数">模板函数</h2>
+<p>一个通用的比较大小的函数：</p>
+<p><img src="image-20240205174804348.png" srcset="/img/loading.gif" lazyload /></p>
+<p>调用这一函数：</p>
+<ol type="1">
+<li>模板的显式实例化</li>
+</ol>
+<p><img src="image-20240205174828098.png" srcset="/img/loading.gif" lazyload /></p>
+<ol type="1">
+<li>隐式实例化</li>
+</ol>
+<p><img src="image-20240205174849968.png" srcset="/img/loading.gif" lazyload /></p>
+<p><img src="image-20240205174908899.png" srcset="/img/loading.gif" lazyload /></p>
+<p><img src="image-20240205174928361.png" srcset="/img/loading.gif" lazyload /></p>
+<h2 id="概念提升">概念提升</h2>
+<p>在写模板函数时往往会对模板参数做出一定的假设，这些假设限制了所编写的模板函数的通用性。</p>
+<p>尝试解除这些假设的限制，使得编写的模板的函数更通用。例如，对于<code>countOccurences</code>函数而言，能否解决以下问题：</p>
+<p><img src="image-20240205165453225.png" srcset="/img/loading.gif" lazyload /></p>
+<p>以下展示逐渐放松<code>countOccurences</code>函数参数限制的过程：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// How many times does the integer [val] appear in an entire vector of integers?</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">countOccurences</span><span class="hljs-params">(<span class="hljs-type">const</span> vector&lt;<span class="hljs-type">int</span>&gt;&amp; vec, <span class="hljs-type">int</span> val)</span> </span>&#123;<br>    <span class="hljs-type">int</span> count = <span class="hljs-number">0</span>; <br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; vec.<span class="hljs-built_in">size</span>(); ++i) &#123; <br>        <span class="hljs-keyword">if</span> (vec[] == val) ++count; <br>    &#125; <br>    <span class="hljs-keyword">return</span> count; <br>&#125;<br><br><span class="hljs-comment">// How many times does the [type] [val] appear in an entire vector of [type]?</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> DataType&gt;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">countOccurences</span><span class="hljs-params">(<span class="hljs-type">const</span> vector&lt;DataType&gt;&amp; vec, </span></span><br><span class="hljs-params"><span class="hljs-function">                    DataType val)</span> </span>&#123;<br>    <span class="hljs-type">int</span> count = <span class="hljs-number">0</span>; <br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; vec.<span class="hljs-built_in">size</span>(); ++i) &#123; <br>        <span class="hljs-keyword">if</span> (vec[] == val) ++count; <br>    &#125; <br>    <span class="hljs-keyword">return</span> count; <br>&#125;<br><br><span class="hljs-comment">// How many times does the [type] [val] appear in an entire [collection] of [type]?</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Collection, <span class="hljs-keyword">typename</span> DataType&gt;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">countOccurences</span><span class="hljs-params">(<span class="hljs-type">const</span> Collection&amp; list, </span></span><br><span class="hljs-params"><span class="hljs-function">                    DataType val)</span> </span>&#123;<br>    <span class="hljs-type">int</span> count = <span class="hljs-number">0</span>; <br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span> iter = list.<span class="hljs-built_in">begin</span>(); iter != list.<span class="hljs-built_in">end</span>(); ++iter) &#123; <br>        <span class="hljs-keyword">if</span> (*iter == val) ++count; <br>    &#125; <br>    <span class="hljs-keyword">return</span> count; <br>&#125;<br><br><span class="hljs-comment">// How many times does the [type] [val] appear in [a range of elements]?</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> InputIt, <span class="hljs-keyword">typename</span> DataType&gt;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">countOccurences</span><span class="hljs-params">(InputIt begin, InputIt end, </span></span><br><span class="hljs-params"><span class="hljs-function">                    DataType val)</span> </span>&#123;<br>    <span class="hljs-type">int</span> count = <span class="hljs-number">0</span>; <br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span> iter = begin; iter != end; ++iter) &#123; <br>        <span class="hljs-keyword">if</span> (*iter == val) ++count; <br>    &#125; <br>    <span class="hljs-keyword">return</span> count; <br>&#125;<br></code></pre></td></tr></table></figure>
+<p>但最后版本的<code>countOccurences</code>仍未能解决最后一个问题：统计向量后半部分中最多有多少元素小于或等于5。在后面，我们会使用<strong>谓词函数</strong>来解决这一问题。</p>
+<h2 id="隐式接口">隐式接口</h2>
+<p>编译器会将每个模板参数替换为实例化它的任何参数。</p>
+<p>例如，对最后一个版本的<code>countOccurences</code>函数而言：</p>
+<p><img src="image-20240205165904004.png" srcset="/img/loading.gif" lazyload /></p>
+<p>按照上述实参，将模板参数替换后会出现语法错误：</p>
+<p><img src="image-20240205165941336.png" srcset="/img/loading.gif" lazyload /></p>
+<p>实际上，模板函数定义了每个模板形参必须满足的<strong>隐式接口</strong>。如果实例化类型不支持这些，则会出现严重的编译错误。</p>
+<p>例如，上述<code>countOccurences</code>函数就有以下隐式接口：</p>
+<ul>
+<li><code>InputIt</code>必须支持：
+<ul>
+<li>copy assignment (<code>iter = begin</code>)</li>
+<li>prefix operator (<code>++iter</code>)</li>
+<li>comparable to end (<code>begin != end</code>)</li>
+<li>dereference operator (<code>*iter</code>)</li>
+</ul></li>
+<li><code>DataType</code>必须支持：
+<ul>
+<li>comparable to <code>*iter</code></li>
+</ul></li>
+</ul>
+<h2 id="overload-resolution">overload resolution</h2>
+<h3 id="模板函数重载解析">模板函数重载解析</h3>
+<p>当存在多个模板函数候选时，C++通过overload resolution来确定使用哪个模板。这个过程主要包括三个步骤：</p>
+<p><img src="image-20240205171142915.png" srcset="/img/loading.gif" lazyload /></p>
+<p>其中，在第二步substitution的过程中：</p>
+<ul>
+<li>编译器尝试用实参类型替换模板函数的模板参数。如果实参类型不满足模板要求的条件（即不符合隐式接口），该模板实例不被生成。</li>
+<li><strong>SFINAE</strong>（Substitution Failure Is Not An Error）：如果替换失败（实参类型不符合隐式接口），这不会导致编译错误。相反，失败的模板重载会被排除出候选函数集。</li>
+<li><strong>作用</strong>：通过SFINAE，可以设计只在满足特定条件时参与重载解析的模板函数，增加类型的条件选择灵活性。</li>
+</ul>
+<h3 id="后置返回类型">后置返回类型</h3>
+<p>C++11特性，允许将返回类型放在函数参数列表后，通过<code>-&gt;</code>指定。特别适用于模板函数和需要参数类型推断的复杂函数。</p>
+<h4 id="示例">示例</h4>
+<ul>
+<li><strong>函数模板</strong>：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-keyword">auto</span> <span class="hljs-title">add</span><span class="hljs-params">(T a, T b)</span> -&gt; <span class="hljs-title">decltype</span><span class="hljs-params">(a + b)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;<br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>Lambda表达式</strong>：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">auto</span> lambda = [](<span class="hljs-type">int</span> x, <span class="hljs-type">int</span> y) -&gt; <span class="hljs-type">int</span> &#123;<br>    <span class="hljs-keyword">return</span> x + y;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<h4 id="利用sfinae">利用SFINAE</h4>
+<p>使用后置返回类型可以利用SFINAE的特性，例如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-comment">/* 1.如果T有size()成员函数，则替换成功。 */</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt; <br><span class="hljs-function"><span class="hljs-keyword">auto</span> <span class="hljs-title">printSize</span><span class="hljs-params">(<span class="hljs-type">const</span> T &amp;a)</span> -&gt; <span class="hljs-title">decltype</span><span class="hljs-params">(a.size())</span></span><br><span class="hljs-function"></span>&#123;<br>    cout &lt;&lt; “printing with size member function : ”;<br>    cout &lt;&lt; a.<span class="hljs-built_in">size</span>() &lt;&lt; endl;<br>    <span class="hljs-keyword">return</span> a.<span class="hljs-built_in">size</span>();<br>&#125;<br><br><span class="hljs-comment">/* 2.如果T能被取反，则替换成功。 */</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt; <br><span class="hljs-function"><span class="hljs-keyword">auto</span> <span class="hljs-title">printSize</span><span class="hljs-params">(<span class="hljs-type">const</span> T &amp;a)</span> -&gt; <span class="hljs-title">decltype</span><span class="hljs-params">(-a)</span></span><br><span class="hljs-function"></span>&#123;<br>    cout &lt;&lt; “printing with negative numeric function : ”;<br>    cout &lt;&lt; -a &lt;&lt; endl;<br>    <span class="hljs-keyword">return</span> -a;<br>&#125;<br><br><span class="hljs-comment">/* 3.如果T是指针，且指向的对象有size()成员函数，则替换成功。 */</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt; <br><span class="hljs-function"><span class="hljs-keyword">auto</span> <span class="hljs-title">printSize</span><span class="hljs-params">(<span class="hljs-type">const</span> T &amp;a)</span> -&gt; <span class="hljs-title">decltype</span><span class="hljs-params">(a-&gt;size())</span></span><br><span class="hljs-function"></span>&#123;<br>    cout &lt;&lt; “printing with pointer function : ”;<br>    cout &lt;&lt; a-&gt;<span class="hljs-built_in">size</span>() &lt;&lt; endl;<br>    <span class="hljs-keyword">return</span> a-&gt;<span class="hljs-built_in">size</span>();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    vector&lt;<span class="hljs-type">int</span>&gt; vec&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br>    <span class="hljs-built_in">printSize</span>(vec);     <span class="hljs-comment">// calls first overload</span><br>    <span class="hljs-built_in">printSize</span>(vec[]);  <span class="hljs-comment">// calls second overload</span><br>    <span class="hljs-built_in">printSize</span>(&amp;vec);    <span class="hljs-comment">// calls third overload</span><br>    <span class="hljs-built_in">printSize</span>(<span class="hljs-literal">nullptr</span>); <span class="hljs-comment">// compiler error</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="练习">练习</h2>
+<p>修改以下函数，使其变得更通用：</p>
+<ol type="1">
+<li>原函数：</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function">tuple&lt;<span class="hljs-type">bool</span>, <span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; </span><br><span class="hljs-function">    <span class="hljs-title">mismatch</span><span class="hljs-params">(<span class="hljs-type">const</span> vector&lt;<span class="hljs-type">int</span>&gt; &amp;vec1, <span class="hljs-type">const</span> vector&lt;<span class="hljs-type">int</span>&gt; &amp;vec2)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (i &lt; vec1.<span class="hljs-built_in">size</span>() &amp;&amp; vec1[] == vec2[]) &#123;<br>        ++i;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (i == vec1.<span class="hljs-built_in">size</span>())<br>        <span class="hljs-keyword">return</span> &#123;<span class="hljs-literal">false</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>&#125;;<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-keyword">return</span> &#123;<span class="hljs-literal">true</span>, vec1[], vec2[]&#125;;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>提升后：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> InputIt1, <span class="hljs-keyword">typename</span> InputIt2&gt;<br><span class="hljs-function">pair&lt;InputIt1, InputIt2&gt; <span class="hljs-title">mismatch</span><span class="hljs-params">(InputIt1 first1, InputIt1 last1,</span></span><br><span class="hljs-params"><span class="hljs-function">                                  InputIt2 first2)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">while</span> (first1 != last1 &amp;&amp; *first1 == *first2) &#123;<br>        ++first1;<br>        ++first2;<br>    &#125;<br>    <span class="hljs-keyword">return</span> &#123;first1, first2&#125;;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="示例代码">示例代码</h2>
+<p><a href="/downloads/template_functions.zip">点击下载示例代码</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/Templates/" class="print-no-link">#Templates</a>
+      
+        <a href="/tags/Function-Template/" class="print-no-link">#Function Template</a>
+      
+        <a href="/tags/SFINE/" class="print-no-link">#SFINE</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>4.Template Function</div>
+      <div>https://ci-tz.github.io/2024/02/05/4-Template-Function/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>次天钊</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年2月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/02/06/5-Functions-and-Algorithms/" title="5.Functions and Algorithms">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">5.Functions and Algorithms</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/02/03/3-STL-Associative-Containers-and-Iterators/" title="3.STL Associative Containers and Iterators">
+                        <span class="hidden-mobile">3.STL Associative Containers and Iterators</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
