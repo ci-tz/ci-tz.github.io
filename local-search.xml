@@ -4,6 +4,37 @@
   
   
   <entry>
+    <title>Improving File System Performance of Mobile Storage Systems Using a Decoupled Defragmenter</title>
+    <link href="/2024/03/17/Improving-File-System-Performance-of-Mobile-Storage-Systems-Using-a-Decoupled-Defragmenter/"/>
+    <url>/2024/03/17/Improving-File-System-Performance-of-Mobile-Storage-Systems-Using-a-Decoupled-Defragmenter/</url>
+    
+    <content type="html"><![CDATA[<h2 id="对闪存存储的文件碎片化进行表征研究">对闪存存储的文件碎片化进行表征研究</h2><h3 id="碎片程度的定义">碎片程度的定义</h3><ul><li><strong>逻辑碎片程度 (DoFL)</strong>：文件x分配的范围数与文件x所需最少范围数之比。</li><li><strong>物理碎片程度 (DoFP)</strong>：顺序访问文件x时的平均I/O并行度与闪存存储系统支持的最大I/O并行度之比。</li></ul><h3 id="实验设计">实验设计</h3><p>通过模拟一年和一周的工作负载，测量Ext4文件系统老化后的DoFL和DoFP值的变化，以了解逻辑和物理碎片在闪存存储中的相互作用。</p><h3 id="结果与分析">结果与分析</h3><p>根据实验结果显示的图像，我们观察到两个区域：</p><p><img src="image-20240317224436449.png" /></p><ul><li><p><strong>区域A</strong>：表示逻辑碎片化程度高，但物理碎片化程度不高的文件比例。</p></li><li><p><strong>区域B</strong>：表示物理碎片化程度高，但逻辑碎片化程度不高的文件比例。</p></li><li><p><strong>结论</strong>：逻辑碎片和物理碎片是高度解耦的。即逻辑碎片化与文件在闪存上能否充分利用并行度并没有必然联系（这个结论与FAST 24的Best Paper本质上是相符的）</p></li></ul><p>逻辑碎片化和物理碎片化对I/O性能的影响不同：逻辑碎片化会增加系统软件I/O堆栈的开销，而物理碎片化会降低闪存中的I/O并行性。因此作者提出，文件碎片化整理工具既需要再逻辑上整理文件碎片，又需要在物理闪存上整理碎片。</p><h3 id="逻辑碎片化对性能的影响">逻辑碎片化对性能的影响</h3><p>作者测量了不同DoFL和DoFP下读取文件的性能。结果表明，随着DoFL的增加，读取性能降低。</p><p><img src="image-20240317224710865.png" /></p><p>作者还对DoFL从1（无碎片）到8（大量碎片）的I/O执行时间进行了测试。结果显示，块层和设备驱动程序的时间随DoFL值的增加而增加，而文件系统和页面缓存层的时间几乎没有受到影响。这暗示了逻辑碎片化对系统的影响主要体现在块层和设备驱动程序中。但让我感到疑惑的一点是：<strong>为什么在他给出的结果中，闪存消耗的时间竟然比块层消耗的时间还要少？</strong></p><p><img src="image-20240317224755097.png" /></p><h3 id="物理碎片化对性能的影响">物理碎片化对性能的影响</h3><ul><li>根据上一节给出的测试中可以得出，在相同DoFL下，物理碎片化程度越高，读取性能也越差</li><li>但作者根据碎片化表征研究中的结果认为，<strong>大部分文件的物理碎片化程度较少</strong>。因为闪存存储内部有丰富的 I/O 并行性，文件不太可能遭遇极低的 I/O 并行性。</li></ul><h2 id="解决方案">解决方案</h2><p>提出了一个用户层工具，分别在逻辑和物理上对文件碎片进行整理，但以逻辑整理为主。</p><figure><img src="image-20240317224936033.png" alt="" /><figcaption>整体设计</figcaption></figure><h3 id="逻辑碎片整理">逻辑碎片整理</h3><p>主要过程为：①对当前文件系统中所有文件的逻辑碎片化情况进行监控，筛选出逻辑碎片化程度较高的文件列表。②向闪存FTL发送碎片整理命令。③FTL执行映射表的重映射，然后将更新后的逻辑块地址（LBA）返回给文件系统，以便文件系统进行相应的LBA更新。</p><p>FTL映射表更新及文件系统更新过程如下图所示：</p><figure><img src="image-20240317225124426.png" alt="" /><figcaption>FTL重映射</figcaption></figure><p>由于闪存页中OOB的反向映射无法修改，因此为了掉电恢复，会将LBA重映射的信息写入到闪存中。掉电恢复过程如下图所示：</p><figure><img src="image-20240317225137309.png" alt="" /><figcaption>掉电恢复</figcaption></figure><p>当FTL更新映射完成，文件系统修改LBA成功后，会在Defrag Log后添加一个commit标志，以便掉电恢复时roll back。</p><p>若文件内容因为GC被移动到新的物理位置，则会更新相应的映射表信息和日志：</p><figure><img src="image-20240317225149990.png" alt="" /><figcaption>GC</figcaption></figure><h3 id="物理碎片整理">物理碎片整理</h3><p>略，此部分不是本文重点</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>论文阅读</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>SSD</tag>
+      
+      <tag>Fragmentation</tag>
+      
+      <tag>Defragmentation</tag>
+      
+      <tag>File System</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>We Ain’t Afraid of No File Fragmentation: Causes and Prevention of Its Performance Impact on Modern Flash SSDs</title>
     <link href="/2024/03/17/We-Ain%E2%80%99t-Afraid-of-No-File-Fragmentation-Causes-and-Prevention-of-Its-Performance-Impact-on-Modern-Flash-SSDs/"/>
     <url>/2024/03/17/We-Ain%E2%80%99t-Afraid-of-No-File-Fragmentation-Causes-and-Prevention-of-Its-Performance-Impact-on-Modern-Flash-SSDs/</url>
@@ -97,7 +128,7 @@
     <link href="/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/"/>
     <url>/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/</url>
     
-    <content type="html"><![CDATA[<h2 id="背景">背景</h2><p>随着过去十年内固态硬盘（SSD）容量的显著提升，SSD管理的基本单位也随之增大，旨在减轻管理负担。随着每个存储块包含的页面数和每个芯片的块数的增加，固态硬盘的闪存转换层（FTL）需要追踪更多的信息。因此，现代SSD倾向于在超级块（一个包含多个块的更大单位）级别处理写入请求，通过在所有可用通道和芯片上进行数据条带化来增强并行性并降低动态随机存取内存（DRAM）的使用。此外，SSD在超级块级别执行垃圾回收（GC），选择一个超级块作为回收目标，迁移其中的有效数据，并清除整个超级块。但是，更大的管理单位以牺牲性能为代价来换取更低的空间开销。</p><p>较大的超级块意味着可供垃圾回收的候选超级块数量减少，导致必须整个清除超级块，即使其内部的有效数据分布不均。考虑到实际工作负载很少完全均匀，这种设计在GC过程中需要迁移更多的有效数据，降低性能并减少SSD寿命。因此，更小的超级块对于提高GC效率至关重要，是优化SSD性能和延长其寿命的关键。</p><h2 id="方法概述">方法概述</h2><h3 id="灵活的超级块大小设计">灵活的超级块大小设计</h3><ul><li><strong>思想</strong>：大型、顺序的请求使用大超级块，而小型、随机的请求则使用小超级块。</li><li><strong>实现方式</strong>：<ul><li>大超级块覆盖全部通道及其上的所有芯片（# channel * # chips）。</li><li>小超级块覆盖全部通道，但只使用部分芯片（# channel * 1/4 # chips）。</li><li>通过分析请求的起始和终止扇区来确定请求的大小。</li><li>在执行GC时，优先选择无效页比例最高的超级块。</li></ul></li></ul><h3 id="生命周期预测">生命周期预测</h3><ul><li><strong>粒度</strong>：逻辑地址空间被分成多个块，每个块由32个页面组成。为每个块使用4字节的数据结构来记录其信息，包括加权平均寿命、上一次写入操作的时间和类型。当一个块被覆盖写或变为无效时，更新该块的加权寿命。更新方式如下图所示：</li></ul><p><img src="image-20240314164256958.png" /></p><ul><li><strong>策略</strong>：同时开放多个超级块以服务不同寿命的数据请求，例如，短生命周期超级块处理寿命小于1秒的数据，而长生命周期超级块处理寿命在3到7秒之间的数据。对于还没有预测寿命的数据，使用默认超级块。</li></ul><p><img src="image-20240314164303987.png" /></p><h2 id="实验设计">实验设计</h2><ul><li><strong>平台</strong>：FEMU，参数设置如图所示。</li></ul><p><img src="image-20240314164311173.png" /></p><ul><li><strong>负载类型</strong>：<ul><li><strong>FIO</strong>：使用4个线程，每个线程向不同大小的文件发送总共256GB的读写请求（读写比为50/50）。所有请求均为随机访问，请求大小固定为4KB，队列深度设置为32。</li><li><strong>TPC-C</strong>：使用MySQL数据库，页面大小为4KB，通过BenchBase工具执行，配置30个终端和30个仓库进行测试。</li><li><strong>YCSB</strong>：插入了1亿个键值对，随后使用工作负载A（读写比为50/50）发出5000万个请求进行性能测试。</li><li><strong>Fileserver</strong>：使用Filebench工具模拟文件服务器的工作负荷，创建1百万个大小为128KB的文件，并通过16个并发线程执行模拟的文件操作。</li><li><strong>GCC</strong>：模拟了编译Linux内核的过程，重复执行100次。每次实验都会将内核源码复制到SSD上，然后编译内核，最后删除源码和生成的二进制文件，以模拟编译过程中的磁盘I/O活动。</li></ul></li><li><strong>对比方案</strong>：<ul><li><strong>Baseline</strong>：传统固态盘</li><li><strong>Partial GC</strong>：在使用超级块的同时，将GC的单位设为单个块</li><li><strong>Multi-stream</strong></li><li><strong>Autostream</strong></li><li><strong>PLAN-NoPred</strong>：在不进行生命周期预测的情况下，将大型请求写入大超级块，小型请求写入并行度较低的小超级块（1/4或1/8的芯片数）。</li><li><strong>PLAN-Pred</strong>：在PLAN-NoPred的基础上加入了寿命预测技术，根据数据的预测寿命将其分配到不同的超级块中，既有1/4也有1/8的芯片数版本。</li></ul></li></ul><h2 id="测试结果">测试结果</h2><ul><li>写放大</li></ul><p><img src="image-20240314164319711.png" /></p><ul><li>GC效率优化</li></ul><p><img src="image-20240314164331949.png" /></p><ul><li>吞吐量优化</li></ul><p><img src="image-20240314164338783.png" /></p>]]></content>
+    <content type="html"><![CDATA[<h2 id="背景">背景</h2><p>随着过去十年内固态硬盘（SSD）容量的显著提升，SSD管理的基本单位也随之增大，旨在减轻管理负担。随着每个存储块包含的页面数和每个芯片的块数的增加，固态硬盘的闪存转换层（FTL）需要追踪更多的信息。因此，现代SSD倾向于在超级块（一个包含多个块的更大单位）级别处理写入请求，通过在所有可用通道和芯片上进行数据条带化来增强并行性并降低动态随机存取内存（DRAM）的使用。此外，SSD在超级块级别执行垃圾回收（GC），选择一个超级块作为回收目标，迁移其中的有效数据，并清除整个超级块。但是，更大的管理单位以牺牲性能为代价来换取更低的空间开销。</p><p>较大的超级块意味着可供垃圾回收的候选超级块数量减少，导致必须整个清除超级块，即使其内部的有效数据分布不均。考虑到实际工作负载很少完全均匀，这种设计在GC过程中需要迁移更多的有效数据，降低性能并减少SSD寿命。因此，更小的超级块对于提高GC效率至关重要，是优化SSD性能和延长其寿命的关键。</p><ul><li>实验：<ul><li>同时运行四个 FIO 线程，将不同特征的数据写入具有不同内部并行度的 SSD：完全并行将数据条带化到所有通道和芯片上，1/2 并行将数据条带化到所有通道，但每个通道仅使用 1/2 的芯片、 1/4 只使用 1/4 的芯片、1/8 只使用 1/8 的芯片，实验结果如下图所示：</li></ul></li></ul><p><img src="motivation.png" /></p><ul><li>结论<ul><li>随着并行度的增加，盘内写放大程度也随之增加。</li><li>随着并行度的增加，IOPS先增加，后减少<ul><li>这是因为高并行度带来的写放大导致了更多的垃圾回收，降低了性能。</li></ul></li></ul></li></ul><h2 id="方法概述">方法概述</h2><h3 id="灵活的超级块大小设计">灵活的超级块大小设计</h3><ul><li><strong>思想</strong>：大型、顺序的请求使用大超级块，而小型、随机的请求则使用小超级块。</li><li><strong>实现方式</strong>：<ul><li>大超级块覆盖全部通道及其上的所有芯片（# channel * # chips）。</li><li>小超级块覆盖全部通道，但只使用部分芯片（# channel * 1/4 # chips）。</li><li>通过分析请求的起始和终止扇区来确定请求的大小。</li><li>在执行GC时，优先选择无效页比例最高的超级块。</li></ul></li></ul><h3 id="生命周期预测">生命周期预测</h3><ul><li><strong>粒度</strong>：逻辑地址空间被分成多个块，每个块由32个页面组成。为每个块使用4字节的数据结构来记录其信息，包括加权平均寿命、上一次写入操作的时间和类型。当一个块被覆盖写或变为无效时，更新该块的加权寿命。更新方式如下图所示：</li></ul><p><img src="image-20240314164256958.png" /></p><ul><li><strong>策略</strong>：同时开放多个超级块以服务不同寿命的数据请求，例如，短生命周期超级块处理寿命小于1秒的数据，而长生命周期超级块处理寿命在3到7秒之间的数据。对于还没有预测寿命的数据，使用默认超级块。</li></ul><p><img src="image-20240314164303987.png" /></p><h2 id="实验设计">实验设计</h2><ul><li><strong>平台</strong>：FEMU，参数设置如图所示。</li></ul><p><img src="image-20240314164311173.png" /></p><ul><li><strong>负载类型</strong>：<ul><li><strong>FIO</strong>：使用4个线程，每个线程向不同大小的文件发送总共256GB的读写请求（读写比为50/50）。所有请求均为随机访问，请求大小固定为4KB，队列深度设置为32。</li><li><strong>TPC-C</strong>：使用MySQL数据库，页面大小为4KB，通过BenchBase工具执行，配置30个终端和30个仓库进行测试。</li><li><strong>YCSB</strong>：插入了1亿个键值对，随后使用工作负载A（读写比为50/50）发出5000万个请求进行性能测试。</li><li><strong>Fileserver</strong>：使用Filebench工具模拟文件服务器的工作负荷，创建1百万个大小为128KB的文件，并通过16个并发线程执行模拟的文件操作。</li><li><strong>GCC</strong>：模拟了编译Linux内核的过程，重复执行100次。每次实验都会将内核源码复制到SSD上，然后编译内核，最后删除源码和生成的二进制文件，以模拟编译过程中的磁盘I/O活动。</li></ul></li><li><strong>对比方案</strong>：<ul><li><strong>Baseline</strong>：传统固态盘</li><li><strong>Partial GC</strong>：在使用超级块的同时，将GC的单位设为单个块</li><li><strong>Multi-stream</strong></li><li><strong>Autostream</strong></li><li><strong>PLAN-NoPred</strong>：在不进行生命周期预测的情况下，将大型请求写入大超级块，小型请求写入并行度较低的小超级块（1/4或1/8的芯片数）。</li><li><strong>PLAN-Pred</strong>：在PLAN-NoPred的基础上加入了寿命预测技术，根据数据的预测寿命将其分配到不同的超级块中，既有1/4也有1/8的芯片数版本。</li></ul></li></ul><h2 id="测试结果">测试结果</h2><ul><li>写放大</li></ul><p><img src="image-20240314164319711.png" /></p><ul><li>GC效率优化</li></ul><p><img src="image-20240314164331949.png" /></p><ul><li>吞吐量优化</li></ul><p><img src="image-20240314164338783.png" /></p>]]></content>
     
     
     <categories>

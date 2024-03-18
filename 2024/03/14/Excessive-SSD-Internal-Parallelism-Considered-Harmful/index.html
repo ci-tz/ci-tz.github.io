@@ -23,6 +23,7 @@
 <meta property="og:site_name" content="Stack">
 <meta property="og:description" content="背景 随着过去十年内固态硬盘（SSD）容量的显著提升，SSD管理的基本单位也随之增大，旨在减轻管理负担。随着每个存储块包含的页面数和每个芯片的块数的增加，固态硬盘的闪存转换层（FTL）需要追踪更多的信息。因此，现代SSD倾向于在超级块（一个包含多个块的更大单位）级别处理写入请求，通过在所有可用通道和芯片上进行数据条带化来增强并行性并降低动态随机存取内存（DRAM）的使用。此外，SSD在超级块级别执">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/motivation.png">
 <meta property="og:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/image-20240314164256958.png">
 <meta property="og:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/image-20240314164303987.png">
 <meta property="og:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/image-20240314164311173.png">
@@ -30,13 +31,13 @@
 <meta property="og:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/image-20240314164331949.png">
 <meta property="og:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/image-20240314164338783.png">
 <meta property="article:published_time" content="2024-03-14T08:55:30.000Z">
-<meta property="article:modified_time" content="2024-03-17T09:32:36.187Z">
+<meta property="article:modified_time" content="2024-03-18T06:25:34.277Z">
 <meta property="article:author" content="次天钊">
 <meta property="article:tag" content="SSD">
 <meta property="article:tag" content="Parallelism">
 <meta property="article:tag" content="Superblock">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/image-20240314164256958.png">
+<meta name="twitter:image" content="https://ci-tz.github.io/2024/03/14/Excessive-SSD-Internal-Parallelism-Considered-Harmful/motivation.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -258,7 +259,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.1k 字
+          1.3k 字
         
       </span>
     
@@ -269,7 +270,7 @@
         
         
         
-          10 分钟
+          11 分钟
         
       </span>
     
@@ -322,6 +323,23 @@
                 <h2 id="背景">背景</h2>
 <p>随着过去十年内固态硬盘（SSD）容量的显著提升，SSD管理的基本单位也随之增大，旨在减轻管理负担。随着每个存储块包含的页面数和每个芯片的块数的增加，固态硬盘的闪存转换层（FTL）需要追踪更多的信息。因此，现代SSD倾向于在超级块（一个包含多个块的更大单位）级别处理写入请求，通过在所有可用通道和芯片上进行数据条带化来增强并行性并降低动态随机存取内存（DRAM）的使用。此外，SSD在超级块级别执行垃圾回收（GC），选择一个超级块作为回收目标，迁移其中的有效数据，并清除整个超级块。但是，更大的管理单位以牺牲性能为代价来换取更低的空间开销。</p>
 <p>较大的超级块意味着可供垃圾回收的候选超级块数量减少，导致必须整个清除超级块，即使其内部的有效数据分布不均。考虑到实际工作负载很少完全均匀，这种设计在GC过程中需要迁移更多的有效数据，降低性能并减少SSD寿命。因此，更小的超级块对于提高GC效率至关重要，是优化SSD性能和延长其寿命的关键。</p>
+<ul>
+<li>实验：
+<ul>
+<li>同时运行四个 FIO 线程，将不同特征的数据写入具有不同内部并行度的 SSD：完全并行将数据条带化到所有通道和芯片上，1/2 并行将数据条带化到所有通道，但每个通道仅使用 1/2 的芯片、 1/4 只使用 1/4 的芯片、1/8 只使用 1/8 的芯片，实验结果如下图所示：</li>
+</ul></li>
+</ul>
+<p><img src="motivation.png" srcset="/img/loading.gif" lazyload /></p>
+<ul>
+<li>结论
+<ul>
+<li>随着并行度的增加，盘内写放大程度也随之增加。</li>
+<li>随着并行度的增加，IOPS先增加，后减少
+<ul>
+<li>这是因为高并行度带来的写放大导致了更多的垃圾回收，降低了性能。</li>
+</ul></li>
+</ul></li>
+</ul>
 <h2 id="方法概述">方法概述</h2>
 <h3 id="灵活的超级块大小设计">灵活的超级块大小设计</h3>
 <ul>
